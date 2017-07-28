@@ -5,6 +5,7 @@ const login = r => require.ensure([], () => r(require('../page/login/login')), '
 const verList = r =>require.ensure([], () => r(require('../page/version/verList')), 'verList')
 const addVer = r =>require.ensure([], () => r(require('../page/version/addVer')), 'addVer')
 const addoffer = r =>require.ensure([], () => r(require('../page/searchin/addoffer')), 'addoffer')
+const newoffer = r =>require.ensure([], () => r(require('../page/searchin/newoffer')), 'newoffer')
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -22,6 +23,7 @@ export default [{
                 {path:"/home/verList",component:verList},
                 {path:"/home/addVer",component:addVer},
                 {path:"/home/addoffer",component:addoffer},
+                {path:"/home/newoffer",component:newoffer},
             ]
         },
         //登陆注册页

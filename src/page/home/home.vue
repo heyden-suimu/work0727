@@ -55,8 +55,8 @@ export default {
         width: 100%;
         .content{
             position: absolute;
-            left: 17%;
-            top:90px;
+            left: 15.6%;
+            top:60px;
             right: 1.2%;;
             bottom: 0;
             overflow: scroll;

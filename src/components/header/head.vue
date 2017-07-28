@@ -2,11 +2,11 @@
     <header id='head_top'>
       <div class="tip"><img src="../../images/logo1.png"></div> 
       <div class="user">
-        <el-dropdown>
+        <el-dropdown trigger="click">
           <span class="el-dropdown-link">
             我的工作台<i class="el-icon-caret-bottom el-icon--right"></i>
           </span>
-          <el-dropdown-menu slot="dropdown" class="exit">
+          <el-dropdown-menu slot="dropdown" class="exit" >
             <el-dropdown-item @click="exit" >退出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -61,6 +61,10 @@
         top: 0;
         right: 0;
         color: #B6B4C7;
+        border-bottom: 2px solid #EEEEEE;
+        box-sizing:border-box;
+        -moz-box-sizing:border-box; 
+        -webkit-box-sizing:border-box; 
         .tip{
             font-size: 18px;
             width: 15.6%;

@@ -34,9 +34,9 @@
                     return
                 }
                 this.$router.push(path);
-                if(path!="verlist"){
-                    this.$parent.$emit("addVer");
-                }                  
+                // if(path!="verlist"){
+                //     this.$parent.$emit("addVer");
+                // }                  
             },
         },
 
