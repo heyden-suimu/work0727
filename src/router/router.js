@@ -7,6 +7,8 @@ const addVer = r =>require.ensure([], () => r(require('../page/version/addVer'))
 const addoffer = r =>require.ensure([], () => r(require('../page/searchin/addoffer')), 'addoffer')
 const newoffer = r =>require.ensure([], () => r(require('../page/searchin/newoffer')), 'newoffer')
 const lastoffer = r =>require.ensure([], () => r(require('../page/searchin/lastoffer')), 'lastoffer')
+const userlist = r =>require.ensure([], () => r(require('../page/usermag/userlist')), 'userlist')
+const adduser = r =>require.ensure([], () => r(require('../page/usermag/adduser')), 'adduser')
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -26,6 +28,8 @@ export default [{
                 {path:"/home/addoffer",component:addoffer},
                 {path:"/home/newoffer",component:newoffer},
                 {path:"/home/lastoffer",component:lastoffer},
+                {path:"/home/userlist",component:userlist},
+                {path:"/home/adduser",component:adduser},
             ]
         },
         //登陆注册页

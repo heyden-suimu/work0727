@@ -12,7 +12,7 @@
                     <div class="item line">
                         <span class="pwd"></span></span><input class="txtbox" id="Password" maxlength="20" name="Password" placeholder="请输入密码" type="password" v-model="passWord"></div>
                     <div class="item line">
-                        <span class="code"></span></span><input class="txtbox" maxlength="20" name="Password" placeholder="请输入验证码" type="password" v-model="code"></div>    
+                        <span class="code"></span></span><input class="txtbox" maxlength="20" name="Password" placeholder="请输入验证码"  v-model="code"></div>    
                     <button class="login_container" @click="mobileLogin">立即登录</button>
                 </form>
             </div>
@@ -55,7 +55,7 @@
                 ],this)
             },
             loginSuc(){
-                this.$router.push("/home");
+                this.$router.push("/addoffer");
             }
         }
     }
