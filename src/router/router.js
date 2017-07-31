@@ -6,6 +6,7 @@ const verList = r =>require.ensure([], () => r(require('../page/version/verList'
 const addVer = r =>require.ensure([], () => r(require('../page/version/addVer')), 'addVer')
 const addoffer = r =>require.ensure([], () => r(require('../page/searchin/addoffer')), 'addoffer')
 const newoffer = r =>require.ensure([], () => r(require('../page/searchin/newoffer')), 'newoffer')
+const lastoffer = r =>require.ensure([], () => r(require('../page/searchin/lastoffer')), 'lastoffer')
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -19,11 +20,12 @@ export default [{
             path: '/home',
             component: home,
             children:[
-                {path: '',redirect: '/home/verList'},
+                {path: '',redirect: '/home/addoffer'},
                 {path:"/home/verList",component:verList},
                 {path:"/home/addVer",component:addVer},
                 {path:"/home/addoffer",component:addoffer},
                 {path:"/home/newoffer",component:newoffer},
+                {path:"/home/lastoffer",component:lastoffer},
             ]
         },
         //登陆注册页
