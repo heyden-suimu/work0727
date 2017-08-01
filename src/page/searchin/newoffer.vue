@@ -205,7 +205,7 @@
         <div class="foot">
             <div>
                 <button v-if="true" @click="readLast">查看续保信息</button>
-                <button class="sub">提交报价</button>
+                <button class="sub" @click="suboffer">提交报价</button>
             </div>
         </div>
     </div>
@@ -253,6 +253,9 @@
             },
             readLast(){
                 this.$router.push("lastoffer")
+            },
+            suboffer(){
+                this.$router.push("suboffer")
             }
         },
 

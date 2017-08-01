@@ -127,3 +127,27 @@ html,body{
 .el-select-dropdown{
         max-width: 3.8rem!important;
 }
+// 计算器样式
+.calcualtor{
+    >div{
+        height: .6rem;
+        >span:nth-child(1){
+            width: 1rem;
+            padding-right: .1rem;
+            display: inline-block;
+            text-align: right;
+        }
+        .el-select{
+            max-width:1.6rem;
+        }
+    }
+    >p{
+        height: .6rem;
+        line-height: .6rem;
+        span:nth-child(1){
+            width: 1rem;
+            display: inline-block;
+            text-align: right;
+        }
+    }            
+}

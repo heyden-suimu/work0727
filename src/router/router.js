@@ -7,8 +7,13 @@ const addVer = r =>require.ensure([], () => r(require('../page/version/addVer'))
 const addoffer = r =>require.ensure([], () => r(require('../page/searchin/addoffer')), 'addoffer')
 const newoffer = r =>require.ensure([], () => r(require('../page/searchin/newoffer')), 'newoffer')
 const lastoffer = r =>require.ensure([], () => r(require('../page/searchin/lastoffer')), 'lastoffer')
+const suboffer = r =>require.ensure([], () => r(require('../page/searchin/suboffer')), 'suboffer')
+const orderoffer = r =>require.ensure([], () => r(require('../page/searchin/orderoffer')), 'orderoffer')
+const orderlist = r =>require.ensure([], () => r(require('../page/ordermag/orderlist')), 'orderlist')
+const overorder = r =>require.ensure([], () => r(require('../page/ordermag/overorder')), 'overorder')
 const userlist = r =>require.ensure([], () => r(require('../page/usermag/userlist')), 'userlist')
 const adduser = r =>require.ensure([], () => r(require('../page/usermag/adduser')), 'adduser')
+
 export default [{
     path: '/',
     component: App, //顶层路由，对应index.html
@@ -28,6 +33,10 @@ export default [{
                 {path:"/home/addoffer",component:addoffer},
                 {path:"/home/newoffer",component:newoffer},
                 {path:"/home/lastoffer",component:lastoffer},
+                {path:"/home/suboffer",component:suboffer},
+                {path:"/home/orderoffer",component:orderoffer},
+                {path:"/home/orderlist",component:orderlist},
+                {path:"/home/overorder",component:overorder},
                 {path:"/home/userlist",component:userlist},
                 {path:"/home/adduser",component:adduser},
             ]

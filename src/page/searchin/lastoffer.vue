@@ -24,6 +24,24 @@
               </div></el-col>
             </el-row>
         </div>
+        <el-table
+          :data="tableData"
+          style="width: 80%;background:white"
+          border>
+          <el-table-column
+            prop="date"
+            label="承险险种"
+            align='center'>
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="承险险种/责任限额"
+            align='center'>
+          </el-table-column>
+        </el-table>
+        <div class="foot">
+                <button  @click="lastsub">按去年险种报价</button>
+        </div>
     </div>
 </template>
 
@@ -33,12 +51,10 @@
     export default {
         data(){
             return {
-                userAccount: null, //用户名
-                passWord: null, //密码
-                user_name:"tuyou", //正确用户
-                password:"tuyou123",//正确密码
-                code:"",
                 search_Res:search_res,
+                tableData:[
+                    
+                ]
             }
         },
         created(){
@@ -51,18 +67,11 @@
             
         },
         methods: {
-
-            //发送登陆信息
-             mobileLogin(){
-                inputCheck([
-                    [!this.userAccount,"请输入用户名"],
-                    [!this.passWord,"密码不能为空"],
-                    [!(this.userAccount==this.user_name&&this.passWord==this.password),"账号或密码不存在"],
-                    [(this.userAccount==this.user_name&&this.passWord==this.password),"",this.loginSuc],           
-                ],this)
-            },
-            loginSuc(){
-                this.$router.push("/home");
+            lastsub(){
+                this.$router.push("newoffer");
+                this.$message({
+                    message:"已按勾选去年险种"
+                })
             }
         }
     }
@@ -93,6 +102,28 @@
                 padding: .2rem .1rem;
                 color:#393939;
             }        
+        }
+        .el-table{
+            padding: 0;
+            .el-table-column{
+                background: white;        
+            }
+        }
+        .foot{
+            background: white;
+            justify-content: center; /*子元素水平居中*/
+            align-items: center; /*子元素垂直居中*/
+            display: -webkit-flex;
+            margin-top: .6rem;
+            button{
+                display: block;
+                float: left;
+                padding: .13rem .5rem;
+                border-radius: 5px;
+                background: #ea413c;
+                color: white;
+                border: 1px solid #ccc;         
+            }
         }
     }
 
