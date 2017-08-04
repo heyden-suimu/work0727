@@ -1,10 +1,16 @@
 // 主页左侧菜单
 export var leftView=[
 	["车险查询",[["新增报价","addoffer"]],],
-	["订单管理",[["订单汇总","orderlist"],["预约单列表"],["已出单列表","overorder"]]],
-	["车险查询",[["业务员注册"],["业务员管理","userlist"]]],
+	["订单管理",[["订单汇总","orderlist"],["预约单列表","sureorder"],["已出单列表","overorder"]]],
+	["车险查询",[["业务员注册","adduser"],["业务员管理","userlist"]]],
 ]
-
+// 语义替换
+export var change_text = {
+    login:{
+        "-3":"用户不存在",
+        "-4":"密码不存在"
+    }
+}
 // 车辆信息
 export var search_res = {
         "username": "admin",

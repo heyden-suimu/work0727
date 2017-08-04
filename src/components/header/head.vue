@@ -2,12 +2,12 @@
     <header id='head_top'>
       <div class="tip"><img src="../../images/logo1.png"></div> 
       <div class="user">
-        <el-dropdown trigger="click">
+        <el-dropdown trigger="click" @command="exit">
           <span class="el-dropdown-link">
             我的工作台<i class="el-icon-caret-bottom el-icon--right"></i>
           </span>
-          <el-dropdown-menu slot="dropdown" class="exit" >
-            <el-dropdown-item @click="exit" >退出</el-dropdown-item>
+          <el-dropdown-menu slot="dropdown" class="exit">
+            <el-dropdown-item command="a">退出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -16,6 +16,7 @@
 
 <script>
     import {mapState, mapActions} from 'vuex'
+    import {Cookie} from '../../components/common/common'
     export default {
     	data(){
             return{
@@ -39,7 +40,8 @@
             // ...mapActions([
             //     'getUserInfo'
             // ]),
-            exit(){
+            exit(a){
+                Cookie.clearCookie("login")
                 this.$router.push("/login")
             },
         },

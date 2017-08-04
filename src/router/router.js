@@ -2,8 +2,6 @@ import App from '../App'
 
 const home = r => require.ensure([], () => r(require('../page/home/home')), 'home')
 const login = r => require.ensure([], () => r(require('../page/login/login')), 'login')
-const verList = r =>require.ensure([], () => r(require('../page/version/verList')), 'verList')
-const addVer = r =>require.ensure([], () => r(require('../page/version/addVer')), 'addVer')
 const addoffer = r =>require.ensure([], () => r(require('../page/searchin/addoffer')), 'addoffer')
 const newoffer = r =>require.ensure([], () => r(require('../page/searchin/newoffer')), 'newoffer')
 const lastoffer = r =>require.ensure([], () => r(require('../page/searchin/lastoffer')), 'lastoffer')
@@ -11,6 +9,7 @@ const suboffer = r =>require.ensure([], () => r(require('../page/searchin/suboff
 const orderoffer = r =>require.ensure([], () => r(require('../page/searchin/orderoffer')), 'orderoffer')
 const orderlist = r =>require.ensure([], () => r(require('../page/ordermag/orderlist')), 'orderlist')
 const overorder = r =>require.ensure([], () => r(require('../page/ordermag/overorder')), 'overorder')
+const sureorder = r =>require.ensure([], () => r(require('../page/ordermag/sureorder')), 'sureorder')
 const userlist = r =>require.ensure([], () => r(require('../page/usermag/userlist')), 'userlist')
 const adduser = r =>require.ensure([], () => r(require('../page/usermag/adduser')), 'adduser')
 
@@ -28,8 +27,6 @@ export default [{
             component: home,
             children:[
                 {path: '',redirect: '/home/addoffer'},
-                {path:"/home/verList",component:verList},
-                {path:"/home/addVer",component:addVer},
                 {path:"/home/addoffer",component:addoffer},
                 {path:"/home/newoffer",component:newoffer},
                 {path:"/home/lastoffer",component:lastoffer},
@@ -37,6 +34,7 @@ export default [{
                 {path:"/home/orderoffer",component:orderoffer},
                 {path:"/home/orderlist",component:orderlist},
                 {path:"/home/overorder",component:overorder},
+                {path:"/home/sureorder",component:sureorder},
                 {path:"/home/userlist",component:userlist},
                 {path:"/home/adduser",component:adduser},
             ]

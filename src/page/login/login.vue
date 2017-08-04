@@ -7,31 +7,31 @@
             </div>
             <div class="wrap">
                 <div class="banner"><img src="../../images/tybanner.jpg"></div>
-                <form class="loginForm" >             
+                <div class="loginForm" >             
                     <div class="item line"><span class="user"></span><input autocomplete="on"  id="UserName" maxlength="20" name="UserName" placeholder="请输入用户名" type="text" v-model="userAccount"></div>
                     <div class="item line">
                         <span class="pwd"></span></span><input class="txtbox" id="Password" maxlength="20" name="Password" placeholder="请输入密码" type="password" v-model="passWord"></div>
                     <div class="item line">
                         <span class="code"></span></span><input class="txtbox" maxlength="20" name="Password" placeholder="请输入验证码"  v-model="code"></div>    
                     <button class="login_container" @click="mobileLogin">立即登录</button>
-                </form>
+                </div>
             </div>
         </div> 
     </div>
 </template>
 
 <script>
-    import {inputCheck} from '../../components/common/common'
+    import {inputCheck,Cookie,changeText} from '../../components/common/common'
+    import {change_text} from "../../service/data"
+    import md5 from 'js-md5'
     import {mapState, mapMutations} from 'vuex' 
-
+    import {login} from "../../service/getData"
     export default {
         data(){
             return {
                 userAccount: null, //用户名
                 passWord: null, //密码
-                user_name:"tuyou", //正确用户
-                password:"tuyou123",//正确密码
-                code:"",
+                code:null,
             }
         },
         created(){
@@ -44,18 +44,26 @@
             
         },
         methods: {
-
             //发送登陆信息
-             mobileLogin(){
+            mobileLogin(){
                 inputCheck([
                     [!this.userAccount,"请输入用户名"],
                     [!this.passWord,"密码不能为空"],
-                    [!(this.userAccount==this.user_name&&this.passWord==this.password),"账号或密码不存在"],
-                    [(this.userAccount==this.user_name&&this.passWord==this.password),"",this.loginSuc],           
+                    [true,"",this.loginSuc]           
                 ],this)
             },
-            loginSuc(){
-                this.$router.push("/addoffer");
+            async loginSuc(){
+                let data = await login(this.userAccount,md5(this.passWord));
+                let user = {username:this.userAccount,password:md5(this.passWord),state:true};
+                if(data.code == 0){
+                    Cookie.setCookie("login",JSON.stringify(user),1)
+                    this.$router.push("/home/addoffer");
+                }else{
+                    this.$message({
+                        type:'error',
+                        message:change_text.login[data.code]
+                    })
+                }
             }
         }
     }

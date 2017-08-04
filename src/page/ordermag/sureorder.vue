@@ -2,28 +2,21 @@
     <div class="incontent">
          <div class="search">
             <el-row>
-              <el-col :span="6"><div class="grid-content bg-purple">
+              <el-col :span="5"><div class="grid-content bg-purple">
                   <span>车牌号：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
-              <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>录入时间：</span><el-input class="serinput" v-model="phone"></el-input>
+              <el-col :span="5"><div class="grid-content bg-purple-light">
+                  <span>投保公司：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
-              <el-col :span="8"><div class="grid-content bg-purple">
+              <el-col :span="5"><div class="grid-content bg-purple">
                   <span>业务员：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
             </el-row>
-            <el-row>
-              <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>交强险到期时间：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-              <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>商业险到期时间：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-            </el-row>
             <div class="serfoot">
-                <el-button>搜索</el-button> 
+                <el-button>搜索</el-button>  
             </div>
         </div>
+        <div class="handle"><span><i class="el-icon-delete"></i>批量删除</span><span><i class="el-icon-upload2"></i>导出Excel</span></div>
         <el-table
           :data="tableData"
           style="width: 96%;margin-left:2%;"
@@ -52,12 +45,14 @@
             label="商业险到期时间">
           </el-table-column>
           <el-table-column
-            prop="date"
-            label="录入时间">
-          </el-table-column>
-          <el-table-column
             prop="name"
             label="业务员">
+          </el-table-column>
+          <el-table-column
+            label="确认出单">
+            <template scope="scope">
+                <el-button @click="handleSure" type="text" size="small">确认</el-button>
+            </template>
           </el-table-column>
           <el-table-column
             width="80"
@@ -130,8 +125,15 @@
             },
             handleClick(){
                 this.$router.push("orderoffer")
+            },
+            handleSure(){
+                const h = this.$createElement
+                this.$msgbox({
+                    title:"确认保单已出",
+                    message:"请确认",
+                    showCancelButton:true,
+                })
             }
-            
         }
     }
 
@@ -162,7 +164,7 @@
                 width: 100%;
                 text-align: right;
                 padding-bottom: .1rem;
-                margin-top: -.5rem;
+                margin-top: -.1rem;
                 padding-right: .5rem;
                 border-bottom: 1px solid #ccc;
                 margin-bottom: .4rem;

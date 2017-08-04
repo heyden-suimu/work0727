@@ -11,10 +11,10 @@ let routerMode;
 const imgBaseUrl = 'https://fuss10.elemecdn.com';
 
 if (process.env.NODE_ENV == 'development') {
-	baseUrl = 'http://www.aituyou.com:12105';
+	baseUrl = 'http://121.40.68.137:15000';
 	routerMode = 'hash'
 }else{
-	baseUrl = '';
+	baseUrl = 'http://api.aituyou.me:8002';
 	routerMode = 'hash'
 }
 

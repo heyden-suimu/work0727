@@ -27,6 +27,7 @@
 
 <script>
     import {mapState, mapActions} from 'vuex'
+    import {exit} from '../../components/common/common'
     export default {
     	data(){
             return{
@@ -39,8 +40,7 @@
             }
         },
         created(){
-            //获取用户信息
-            
+            exit(this)
         },
         mounted(){
             
@@ -55,9 +55,6 @@
             // ...mapActions([
             //     'getUserInfo'
             // ]),
-            exit(){
-                this.$router.push("/login")
-            },
             handleClick(tab, event) {
                 console.log(tab, event);
             },

@@ -29,7 +29,7 @@
         <div class="handle"><span><i class="el-icon-delete"></i>批量删除</span><span><i class="el-icon-upload2"></i>导出Excel</span></div>
         <el-table
           :data="tableData"
-          style="width: 100%"
+          style="width: 96%;margin-left:2%;"
           border
           @selection-change="handleSelectionChange">
           <el-table-column
@@ -61,6 +61,12 @@
           <el-table-column
             prop="name"
             label="业务员">
+          </el-table-column>
+          <el-table-column
+            label="分配状态">
+            <template scope="scope">
+                <el-button @click="handleStatus(scope.$index,scope.row.status)" type="text" size="small">{{scope.row.status}}</el-button>
+            </template>
           </el-table-column>
           <el-table-column
             width="80"
@@ -96,19 +102,23 @@
                tableData: [{
                     date: '2016-05-02',
                     name: '王小虎',
-                    address: '京QY1111'
+                    address: '京QY1111',
+                    status:"未分配"
                   }, {
                     date: '2016-05-04',
                     name: '王小虎',
-                    address: '京QY1111'
+                    address: '京QY1111',
+                    status:"已分配"
                   }, {
                     date: '2016-05-01',
                     name: '王小虎',
-                    address: '京QY1111'
+                    address: '京QY1111',
+                    status:"已分配"
                   }, {
                     date: '2016-05-03',
                     name: '王小虎',
-                    address: '京QY1111'
+                    address: '京QY1111',
+                    status:"未分配"
                   }]
             }
         },
@@ -133,8 +143,13 @@
             },
             handleClick(){
                 this.$router.push("orderoffer")
+            },
+            handleStatus(index,text){
+                this.$msgbox({
+                    title:"改变状态",
+                    message:"确定将改变"+text+"状态?"
+                })
             }
-            
         }
     }
 
