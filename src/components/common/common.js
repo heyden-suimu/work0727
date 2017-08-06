@@ -18,7 +18,7 @@ let getPrams = function (url) {
 		 				type:"error",
 		 				message:arr[i][1],
 		 			})
-		 			return
+		 			return -1;
 	 			}
 	 			if(arr[i][0]&&(arr[i][2] instanceof Function)){
 		 				arr[i][2](); 				
@@ -52,9 +52,16 @@ let Cookie = {
         this.setCookie(cname, "", -1);
     },
 }
-
+// 退出
 let exit = (vm)=>{
     let login = JSON.parse(Cookie.getCookie("login"));
 	if(!login.state) vm.$router.push("/login");    
 }
-export {getPrams,inputCheck,Cookie,exit}
+// 弹窗
+let layer = (type,message,vm)=>{
+    vm.$message({
+            type:type,
+            message:message
+    })
+} 
+export {getPrams,inputCheck,Cookie,exit,layer}

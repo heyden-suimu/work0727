@@ -36,7 +36,7 @@
           width="450"
           trigger="click">
           <template >
-              <div class="calcualtor">
+              <div class="calculator">
                   <h2>计算器</h2>
                   <p><span>车牌号：</span><span></span></p>
                   <div><span>保险公司</span><el-select value="1">
@@ -56,7 +56,7 @@
        <div class="foot"> 
             <button v-if="true" @click="">核保结果刷新</button>
             <button  @click="reoffer">重新报价</button>
-            <button  v-popover:popover>车险计算器</button>
+            <button  @click="calculator">车险计算器</button>
             <button  @click="orderoffer">预约出单</button>
         </div>
     </div>
@@ -75,7 +75,8 @@
                 get_suboffer:get_suboffer,
                 name:"qwe",
                 ischecked:0,
-                calresult:''
+                calresult:'',
+                data1:123,
             }
         },
         created(){
@@ -99,7 +100,10 @@
             },
             orderoffer(){
                 this.$router.push("orderoffer")
-            } 
+            },
+            calculator(){
+               
+            }
         }
     }
 

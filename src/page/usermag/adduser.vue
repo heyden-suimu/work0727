@@ -60,10 +60,10 @@
                     </el-select>
               </div></el-col>
               <el-col :span="5"><div class="grid-content bg-purple-light">
-                  <el-input class="serinput" v-model="item.BizDiscount"></el-input>
+                  <el-input class="serinput" v-model="item.BizDiscount" placeholder="请输入0~0.4的数字"></el-input>
               </div></el-col>
               <el-col :span="5"><div class="grid-content bg-purple-light">
-                  <el-input class="serinput" v-model="item.ForceDiscount"></el-input>
+                  <el-input class="serinput" v-model="item.ForceDiscount" placeholder="请输入0~0.4的数字"></el-input>
               </div></el-col>
             </el-row>
         </div>
@@ -77,17 +77,17 @@
 </template>
 
 <script>
-    import {inputCheck,exit} from '../../components/common/common'
+    import {inputCheck,exit,layer} from '../../components/common/common'
     import md5 from 'js-md5'
     import {mapState, mapActions} from 'vuex' 
     import {register} from "../../service/getData"
     export default {
         data(){
             return {
-               name:null,
-               phoneNumber:null,
-               username:null,
-               password:null,
+               name:'',
+               phoneNumber:'',
+               username:'',
+               password:'',
                list:[
                {source:0,company:"中国人保",imgsrc:require("../../images/rb.png"),submitInfo :false,offer_prority:false,BizDiscount:null,ForceDiscount:null},
                {source:1,company:"中国平安",imgsrc:require("../../images/pa.png"),submitInfo :false,offer_prority:false,BizDiscount:null,ForceDiscount:null},
@@ -117,7 +117,6 @@
         computed: {
             ...mapState([
                 'userinfo',
-                "gi"
             ])
         },
         methods: {
@@ -128,9 +127,13 @@
                 Object.assign(this.$data, this.$options.data())
             },
             async register(){
-                // !(/^1[3|4|5|8][0-9]\d{4,8}$/.test(sMobile))
-
-                let prams = {
+                let check =  inputCheck([
+                        [!this.name,"请输入用户名"],
+                        [!(/^1[3|4|5|8][0-9]\d{4,8}$/.test(this.phoneNumber)),"请输入正确的手机号码"],
+                        [!this.username,"请输入账号"],
+                        [!this.password,"请输入密码"],
+                    ],this)
+                var prams = {
                     name:this.name,
                     username:this.username,
                     password:md5(this.password),
@@ -141,25 +144,22 @@
                         {code:this.list[2].source,submitInfo:this.list[2].submitInfo,precisePrice:this.list[2].precisePrice,BizDiscount:this.list[2].BizDiscount,ForceDiscount:this.list[2].ForceDiscount}
                     ],
                     orderCount:this.orderCount,
-                    parentId:this.parentId
+                    parentId:this.$store.state.userinfo.userId
+                }
+                if(check == -1){
+                    return
                 }
                 try{
                     let data = await register(prams)
                     if(data.code == 0){
-                        this.layer("success","注册成功")
+                        layer("success","注册成功",this)
                     }else if(data.code == -102){
-                        this.layer("error",data.ch)
+                        layer("error",data.ch,this)
                     }
                 }catch(err){
-                     this.layer("error","请求数据错误")
+                     layer("error","请求数据错误",this)
                 }
-            },
-            layer(type,message){
-                this.$message({
-                        type:type,
-                        message:message
-                })
-            }           
+            },          
         }
     }
 

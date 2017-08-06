@@ -8,29 +8,14 @@
               <el-col :span="7"><div class="grid-content bg-purple-light">
                   <span>业务员姓名：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
-              <el-col :span="10"><div class="grid-content bg-purple">
-                  <span>注册时间：</span><el-input class="serinput" v-model="phone"></el-input><span> 至 </span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>上级业务员姓名：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-              <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>是否可用：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-              <el-col :span="10"><div class="grid-content bg-purple">
-                  <span>上级业务员ID：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
             </el-row>
             <div class="serfoot">
                 <el-button>搜索</el-button> 
-                <el-button>批量审核</el-button> 
             </div>
         </div>
         <el-table
           :data="tableData"
-          style="width: 100%"
+          style="width: 96%;margin-left:2%;"
           border
           @selection-change="handleSelectionChange">
           <el-table-column
@@ -39,17 +24,37 @@
           </el-table-column>
           <el-table-column
             prop="date"
-            label="日期"
+            label="ID"
             width="180">
           </el-table-column>
           <el-table-column
             prop="name"
-            label="姓名"
+            label="业务员"
             width="180">
           </el-table-column>
           <el-table-column
             prop="address"
-            label="地址">
+            label="手机号">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="账号">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="上级单位">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="注册日期">
+          </el-table-column>
+          <el-table-column
+            label="操作">
+              <template scope="scope">
+                <div>
+                    <el-button type="text" size="small">禁用</el-button>
+                </div>
+            </template>
           </el-table-column>
         </el-table>
         <div>
@@ -67,9 +72,9 @@
 </template>
 
 <script>
-    import {inputCheck} from '../../components/common/common'
-    import {mapState, mapMutations} from 'vuex' 
-
+    import {inputCheck,layer,exit} from '../../components/common/common'
+    import {mapState, mapActions} from 'vuex' 
+    import {next_userlist} from "../../service/getData"
     export default {
         data(){
             return {
@@ -95,19 +100,39 @@
             }
         },
         created(){
-            
+            exit();
+            this.init()
         },
         components: {
             
         },
         computed: {
-            
+            ...mapState([
+                'userinfo',
+            ])
         },
         methods: {
+             ...mapActions([
+                "getUserInfo"
+            ]),
             handleSelectionChange(val) {
-            this.multipleSelection = val;
-          },
-            
+                this.multipleSelection = val;
+            },
+            async init(){       
+                try{
+                    let data = await next_userlist(this.$store.state.userinfo.userId);
+                    console.log(data)
+                }catch(err){
+                    console.log(err)
+                    layer("error","请求参数错误",this)
+                }                      
+            },
+            handleSizeChange(){
+
+            },
+            handleCurrentChange(){
+
+            }
         }
     }
 
@@ -126,10 +151,13 @@
         background: #fff;
         font-size: 14px;
         div.search{
-            width: 94%;
+            width: 100%;
             margin-left: 0%;
+            padding-bottom: .25rem;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: .4rem;
             .serinput{
-                width: 1.6rem;
+                width: 1.6rem;                
             }
             .el-col{
                 text-align: right;
@@ -144,19 +172,15 @@
                     visibility: hidden;
                 }
                 float: right;
+                margin-top: -0.5rem;
                 .el-button{
                     background:#d43f3a;
                     color: white;
                     width: 1rem;
+                    margin-right: .8rem;;
                 }
                 .el-button:nth-child(1):hover{
                     border-color: #d43f3a;
-                }
-                .el-button:nth-child(2){
-                    background:#3071a9;
-                    color: white;
-                    margin-left: .2rem;
-                    margin-right: .3rem;
                 }
             }
         }
