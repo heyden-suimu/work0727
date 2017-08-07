@@ -15,8 +15,11 @@ export default {
 		commit,
 		state
 	}) {
-		let loginData = JSON.parse(Cookie.getCookie("login"));
-		let data = await login(loginData.username,loginData.password);
-		commit(USER_INFO,data.res)
+		if(!state.userinfo.name){
+			let loginData = JSON.parse(Cookie.getCookie("login"));
+			let data = await login(loginData.username,loginData.password);
+			commit(USER_INFO,data.res)
+		}
+		
 	},
 }

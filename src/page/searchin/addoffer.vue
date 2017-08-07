@@ -45,6 +45,9 @@
         mounted(){
             
         },
+        components:{
+   
+        },
         props: [],
         computed: {
             // ...mapState([
@@ -78,6 +81,12 @@
         top: 0;
         overflow: scroll;
         background: #fff;
+        .breadCrum{
+            position: relative;
+            left: 5%;
+            top:.3rem;
+            margin-bottom: .2rem;
+        }
         .el-tabs{
             width: 40%;
             margin-left: 30%;

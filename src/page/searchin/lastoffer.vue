@@ -47,7 +47,7 @@
 
 <script>
     import {mapState, mapMutations} from 'vuex' 
-    import{search_res} from "../../service/data"
+    import{search_res,} from "../../service/data"
     export default {
         data(){
             return {
@@ -61,7 +61,7 @@
             
         },
         components: {
-            
+
         },
         computed: {
             

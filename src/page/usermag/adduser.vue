@@ -99,17 +99,15 @@
                sclect:[{name:"未开通",value:false},{name:"已开通",value:true}]
             }
         },
-        created(){
+        created(){           
             
         },
         mounted(){
             exit(this)
             if(!this.$store.state.userinfo.userId){
-                this.getUserInfo();
-            }
-            console.log(this.$store.state)
-            console.log(this.$store.state.userinfo)
-            console.log(this.$store.state.gi)
+                this.$store.dispatch('getUserInfo').then(() => {
+                })
+            }         
         },
         components: {
             
@@ -117,11 +115,12 @@
         computed: {
             ...mapState([
                 'userinfo',
-            ])
+            ]),
         },
         methods: {
             ...mapActions([
-                "getUserInfo"
+                "getUserInfo",
+                "getUserInfo1"
             ]),
             reset(){
                 Object.assign(this.$data, this.$options.data())

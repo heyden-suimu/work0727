@@ -151,3 +151,14 @@ html,body{
         }
     }            
 }
+// 面包屑初始化
+.el-breadcrumb{
+    .el-breadcrumb__item__inner{
+        color: #48576A!important;
+    }
+    .active{
+        .el-breadcrumb__item__inner{
+            color: #97A8BE!important;
+         }
+     }
+}

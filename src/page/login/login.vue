@@ -10,9 +10,7 @@
                 <div class="loginForm" >             
                     <div class="item line"><span class="user"></span><input autocomplete="on"  id="UserName" maxlength="20" name="UserName" placeholder="请输入用户名" type="text" v-model="userAccount"></div>
                     <div class="item line">
-                        <span class="pwd"></span></span><input class="txtbox" id="Password" maxlength="20" name="Password" placeholder="请输入密码" type="password" v-model="passWord"></div>
-                    <div class="item line">
-                        <span class="code"></span></span><input class="txtbox" maxlength="20" name="Password" placeholder="请输入验证码"  v-model="code"></div>    
+                        <span class="pwd"></span></span><input class="txtbox" id="Password" maxlength="20" name="Password" placeholder="请输入密码" type="password" v-model="passWord" @keyup.enter="mobileLogin"></div>
                     <button class="login_container" @click="mobileLogin">立即登录</button>
                 </div>
             </div>
@@ -61,7 +59,7 @@
                 }else{
                     this.$message({
                         type:'error',
-                        message:change_text.login[data.code]
+                        message:change_text.login[data.code.code]
                     })
                 }
             }
@@ -129,7 +127,7 @@
                 margin: 0 auto;
                 text-align: left;
                 float: left;
-                padding-top: 1.1rem;
+                padding-top: 1.3rem;
                 .item{
                     width: 70%;
                     overflow: hidden;
@@ -183,7 +181,7 @@
                     text-align: center;
                     color: white;
                     padding:6px 0;
-                    margin-top: .1rem;
+                    margin-top: .4rem;
                 }              
             }
         }

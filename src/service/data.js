@@ -4,10 +4,19 @@ export var leftView=[
 	["订单管理",[["订单汇总","orderlist"],["预约单列表","sureorder"],["已出单列表","overorder"]]],
 	["车险查询",[["业务员注册","adduser"],["业务员管理","userlist"]]],
 ]
+//面包鞋
+export var breadcrum = [
+[
+    ["查询","addoffer"],
+    ["查询结果","newoffer"],
+    ["续保信息","lastoffer"],
+    ["报价信息","suboffer"],
+]
+]
 // 语义替换
 export var change_text = {
     login:{
-        "-3":"用户不存在",
+        "-103":"用户不存在",
         "-4":"密码不存在"
     }
 }

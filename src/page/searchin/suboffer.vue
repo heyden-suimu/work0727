@@ -30,13 +30,11 @@
               </el-table-column>
             </el-table>
        </div>
-        <el-popover
-          ref="popover"
-          placement="top"
-          width="450"
-          trigger="click">
-          <template >
-              <div class="calculator">
+        <el-dialog
+            :visible.sync="dialogVisible"
+            size="small"
+            >
+            <div class="calculator">
                   <h2>计算器</h2>
                   <p><span>车牌号：</span><span></span></p>
                   <div><span>保险公司</span><el-select value="1">
@@ -51,19 +49,18 @@
                   <el-checkbox>去增值税税点</el-checkbox></div>
                   <div><el-input type="textarea" v-model="calresult" :rows="6"></el-input></div>
               </div>
-          </template>
-        </el-popover>
+        </el-dialog>
        <div class="foot"> 
             <button v-if="true" @click="">核保结果刷新</button>
             <button  @click="reoffer">重新报价</button>
-            <button  @click="calculator">车险计算器</button>
+            <button  @click="dialogVisible = true">车险计算器</button>
             <button  @click="orderoffer">预约出单</button>
         </div>
     </div>
 </template>
 
 <script>
-    import{get_suboffer} from "../../service/data"
+    import{get_suboffer,} from "../../service/data"
     import {mapState, mapMutations} from 'vuex' 
     export default {
         data(){
@@ -77,6 +74,7 @@
                 ischecked:0,
                 calresult:'',
                 data1:123,
+                dialogVisible:false,
             }
         },
         created(){

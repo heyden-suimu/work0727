@@ -7,7 +7,6 @@ import getters from './getters'
 Vue.use(Vuex)
 
 const state = {
-	gi:1,
 	userinfo:{
 		userId: "",
 		phoneNumber: "",

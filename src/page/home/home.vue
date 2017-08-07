@@ -53,6 +53,7 @@ export default {
         bottom: 0;
         height: 100%;
         width: 100%;
+        background: white;
         .content{
             position: absolute;
             left: 15.6%;

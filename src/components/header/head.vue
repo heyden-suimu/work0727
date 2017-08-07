@@ -1,6 +1,7 @@
 <template>
     <header id='head_top'>
-      <div class="tip"><img src="../../images/logo1.png"></div> 
+      <div class="tip"><img src="../../images/logo1.png"></div>
+      <breade-crumb :bread_list="bread_list" ></breade-crumb> 
       <div class="user">
         <el-dropdown trigger="click" @command="exit">
           <span class="el-dropdown-link">
@@ -17,10 +18,12 @@
 <script>
     import {mapState, mapActions} from 'vuex'
     import {Cookie} from '../../components/common/common'
+    import breadeCrumb from "../../components/common/breade"
+    import {breadcrum} from "../../service/data"
     export default {
     	data(){
             return{
-                
+                bread_list:""
             }
         },
         created(){
@@ -28,7 +31,10 @@
 
         },
         mounted(){
-            
+            this.getbread();
+        },
+        components:{
+            breadeCrumb
         },
         props: [],
         computed: {
@@ -40,10 +46,28 @@
             // ...mapActions([
             //     'getUserInfo'
             // ]),
+            // 退出登录
             exit(a){
                 Cookie.clearCookie("login")
                 this.$router.push("/login")
             },
+            // 获取面包屑信息
+            getbread(){
+                breadcrum.map((arr,index)=>{
+                   arr.map((n)=>{
+                        if(this.$route.path.indexOf(n[1])){
+                            console.log(this.$route.path)
+                            console.log(n[1])
+                            // debugger
+                            this.bread_list = breadcrum[index];
+                            return
+                        }else{
+                            this.bread_list ="";
+                        }
+                    })
+                })
+               console.log(this.bread_list)
+            }
         },
 
     }
@@ -81,6 +105,16 @@
                 display: block;
                 @include center
             }    
+        }
+        .breadCrum{
+            background: none;
+            position: absolute;
+            width: 82%;
+            background: white;
+            padding: .2rem 0 .1rem 0;
+            left: 18%;
+            top:20px;
+            margin-bottom: .2rem;
         }
         .user{
             position: absolute;

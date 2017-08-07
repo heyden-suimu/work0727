@@ -213,7 +213,7 @@
 
 <script>
     import {mapState, mapActions} from 'vuex'
-    import{search_res,idType,basicIns,otherIns} from "../../service/data"
+    import{search_res,idType,basicIns,otherIns,} from "../../service/data"
     export default {
     	data(){
             return{
@@ -237,6 +237,8 @@
         mounted(){
             this.search_Res = search_res;
             this.idType = idType;
+        },
+        components:{
         },
         props: [],
         computed: {
