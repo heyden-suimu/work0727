@@ -56,10 +56,11 @@
                 if(data.code == 0){
                     Cookie.setCookie("login",JSON.stringify(user),1)
                     this.$router.push("/home/addoffer");
+                    localStorage.setItem("username",data.res.username)
                 }else{
                     this.$message({
                         type:'error',
-                        message:change_text.login[data.code.code]
+                        message:data.code.ch
                     })
                 }
             }

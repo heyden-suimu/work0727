@@ -7,38 +7,10 @@ import getters from './getters'
 Vue.use(Vuex)
 
 const state = {
-	userinfo:{
-		userId: "",
-		phoneNumber: "",
-		password: "",
-		username: "",
-		name: "",
-		level: null,
-		source: [
-		    {
-		    	code: null,
-				submitInfo: null,
-				precisePrice: null,
-				BizDiscount: null,
-				ForceDiscount: null
-			},
-			{
-		    	code: null,
-				submitInfo: null,
-				precisePrice: null,
-				BizDiscount: null,
-				ForceDiscount: null
-			},
-			{
-		    	code: null,
-				submitInfo: null,
-				precisePrice: null,
-				BizDiscount: null,
-				ForceDiscount: null
-			},
-		],
-		orderCount: null
-	}
+	userinfo:{userId:null},
+	cityInfo:null,
+	xbInfo:{LicenseNo:null},
+	orderlist:{username:null}	
 }
 
 export default new Vuex.Store({

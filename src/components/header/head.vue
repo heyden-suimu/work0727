@@ -56,8 +56,8 @@
                 breadcrum.map((arr,index)=>{
                    arr.map((n)=>{
                         if(this.$route.path.indexOf(n[1])){
-                            console.log(this.$route.path)
-                            console.log(n[1])
+                            // console.log(this.$route.path)
+                            // console.log(n[1])
                             // debugger
                             this.bread_list = breadcrum[index];
                             return
@@ -66,7 +66,7 @@
                         }
                     })
                 })
-               console.log(this.bread_list)
+               // console.log(this.bread_list)
             }
         },
 

@@ -137,16 +137,16 @@
               <el-col :span="12"><div class="grid-content bg-purple">
                   <el-col :span="9" style="height:.42rem;line-height:.42rem;">交强险/车船税起保时间</el-col> 
                   <el-date-picker
-                      v-model="search_Res.ForceExpireDate"
+                      v-model="search_Res.NextForceStartDate"
                       type="datetime"
                       format="yyyy-MM-dd HH:00"
                       placeholder="选择日期时间">
                     </el-date-picker>
               </div></el-col>
               <el-col :span="12"><div class="grid-content bg-purple-light">
-                  <el-select v-model="select">
-                      <el-option label="投保" value="0"></el-option>
-                      <el-option label="不投保" value="1"></el-option>
+                  <el-select v-model="xbjq">
+                      <el-option label="投保" :value="0"></el-option>
+                      <el-option label="不投保" :value="1"></el-option>
                   </el-select>
               </div></el-col>
             </el-row>
@@ -154,16 +154,16 @@
               <el-col :span="12"><div class="grid-content bg-purple">
                   <el-col :span="9" style="height:.42rem;line-height:.42rem;">商业险起保时间</el-col> 
                   <el-date-picker
-                      v-model="search_Res.ForceExpireDate"
+                      v-model="search_Res.NextBusinessStartDate"
                       type="datetime"
                       format="yyyy-MM-dd HH:00"
                       placeholder="选择日期时间">
                     </el-date-picker>
               </div></el-col>
               <el-col :span="12"><div class="grid-content bg-purple-light">
-                  <el-select v-model="select">
-                      <el-option label="投保" value="0"></el-option>
-                      <el-option label="不投保" value="1"></el-option>
+                  <el-select v-model="xbsy">
+                      <el-option label="投保" :value="0"></el-option>
+                      <el-option label="不投保" :value="1"></el-option>
                   </el-select>
               </div></el-col>
             </el-row>
@@ -172,14 +172,18 @@
             <h3>基本险</h3>
             <el-row v-for="(item,index) in basicIns">
               <el-col :span="18"><div class="grid-content bg-purple">
-                  <span>{{item}}</span>
+                  <span>{{item.name}}</span>
               </div></el-col>
               <el-col :span="6"><div class="grid-content bg-purple-light">
-                  <div>
-                        <el-checkbox v-model="checked">不计免赔</el-checkbox>
-                        <el-select v-model="select">
-                          <el-option label="投保" value="0"></el-option>
-                          <el-option label="不投保" value="1"></el-option>
+                  <div @click=checkins(item.code)>
+                        <el-checkbox v-if="item.hasOwnProperty('mianpei')" v-model="item.mianpei" >不计免赔</el-checkbox>
+                        <el-select v-model="item.value" v-if="!item.slect_list">
+                          <el-option label="投保" :value="0"></el-option>
+                          <el-option label="不投保" :value="1"></el-option>
+                        </el-select>
+                        <el-select v-model="item.value" v-if="item.slect_list">
+                          <el-option label="不投保" :value="0"></el-option>
+                          <el-option v-for="(item,index) in item.slect_list"  :value="item" ></el-option>
                         </el-select>
                   </div>
               </div></el-col>
@@ -189,14 +193,18 @@
             <h3>附加险</h3>
            <el-row v-for="(item,index) in otherIns">
               <el-col :span="18"><div class="grid-content bg-purple">
-                  <span>{{item}}</span>
+                  <span>{{item.name}}</span>
               </div></el-col>
               <el-col :span="6"><div class="grid-content bg-purple-light">
-                  <div>
-                        <el-checkbox v-model="checked">不计免赔</el-checkbox>
-                        <el-select v-model="select">
-                          <el-option label="投保" value="0"></el-option>
-                          <el-option label="不投保" value="1"></el-option>
+                  <div @click=checkins(item.code)>
+                        <el-checkbox v-if="item.hasOwnProperty('mianpei')" v-model="item.mianpei">不计免赔</el-checkbox>
+                        <el-select v-model="item.value" v-if="!item.slect_list" >
+                          <el-option label="投保" :value="0"></el-option>
+                          <el-option label="不投保" :value="1"></el-option>
+                        </el-select>
+                        <el-select v-model="item.value" v-if="item.slect_list">
+                          <el-option label="不投保" :value="0"></el-option>
+                          <el-option v-for="item in item.slect_list"  :value="item" ></el-option>
                         </el-select>
                   </div>
               </div></el-col>
@@ -204,7 +212,7 @@
         </div>
         <div class="foot">
             <div>
-                <button v-if="true" @click="readLast">查看续保信息</button>
+                <button @click="readLast">查看续保信息</button>
                 <button class="sub" @click="suboffer">提交报价</button>
             </div>
         </div>
@@ -212,7 +220,8 @@
 </template>
 
 <script>
-    import {mapState, mapActions} from 'vuex'
+    import {mapState, mapActions,mapGetters} from 'vuex'
+    import {exit,layer} from '../../components/common/common'
     import{search_res,idType,basicIns,otherIns,} from "../../service/data"
     export default {
     	data(){
@@ -220,14 +229,12 @@
                 activeName:"first",
                 input5:"",
                 idType:idType,
-                select:"",
-                select1:"",
+                xbjq:0,
+                xbsy:0,
                 basicIns:basicIns,
                 otherIns:otherIns,
-                List:['京','津','冀','鲁','豫','黑','辽','吉','晋','浙','皖','沪','闽','渝','赣','鄂','新','湘','宁','粤','藏','琼','桂','川','贵','云','陕','甘','青','苏','港','澳','台'],
-                city:["上海","北京","天津"],
                 checked:true,
-                search_Res:{},
+                search_Res:null,
             }
         },
         created(){
@@ -235,30 +242,51 @@
             
         },
         mounted(){
-            this.search_Res = search_res;
-            this.idType = idType;
+            exit(this)
+            this.init()
         },
         components:{
         },
         props: [],
         computed: {
-            // ...mapState([
-            //     'userInfo'
-            // ]),
+            ...mapState([
+                'userInfo',
+                "xbInfo"
+            ]),
+            ...mapGetters([
+                "getxbinfo"
+            ])
         },
         methods: {
-            // ...mapActions([
-            //     'getUserInfo'
-            // ]),
-            exit(){
-                this.$router.push("/login")
+            ...mapActions([
+                'getUserInfo',
+                "getXbInfo"
+            ]),
+            async init(){
+                if(!this.$store.state.xbInfo.LicenseNo){
+                    await this.$store.dispatch("getXbInfo")
+                }
+                this.search_Res = this.$store.state.xbInfo;
+                this.basicIns = this.$store.getters.getxbinfo.basic;
+                this.otherIns = this.$store.getters.getxbinfo.other;
+                if(this.search_Res.CheSun){
+                    this.search_Res.CheSun = 0;
+                }else{
+                    this.search_Res.CheSun = 1;
+                }
+            },
+            checkins(name){
+                if(name=="CheSun"&&this.xbsy==1){
+                    layer("error","商业险未投保",this)
+                    return
+                }
             },
             readLast(){
                 this.$router.push("lastoffer")
             },
             suboffer(){
                 this.$router.push("suboffer")
-            }
+            },
         },
 
     }
@@ -360,9 +388,20 @@
                 padding: .02rem 0;
                 .el-checkbox{
                     margin-right: .16rem;
+                    height: .5rem;
+                    line-height: .5rem;
                 }
                 .el-select{
                     width: 1.2rem;
+                    height: .5rem;
+                    line-height: .5rem;
+                    float: right;
+                    margin-right: .24rem;
+                }
+                .el-select::after{
+                    content: "";
+                    display:block;
+                    clear: both;
                 }
             }
         }

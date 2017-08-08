@@ -17,14 +17,13 @@ export default async(type = 'GET', url = '', data = {},go = 'fetch',file="") => 
 			url = url + '?' + dataStr;
 		}
 	}
-
 	if (null) {
 		let requestConfig = {
 			credentials: 'include',
 			method: type,
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/x-www-form-urlencoded'
+				'Content-Type': 'text/plain'
 			},
 			mode: "cors",
 			cache: "force-cache"

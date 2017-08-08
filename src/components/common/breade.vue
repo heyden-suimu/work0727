@@ -21,8 +21,6 @@
         methods: {
             Active(list,index){
                 let str = '/home/' + list[1]
-                console.log(str)
-                console.log(this.$route.path)
                 return  str == this.$route.path
             }
         }

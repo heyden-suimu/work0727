@@ -91,9 +91,9 @@
 </template>
 
 <script>
-    import {inputCheck} from '../../components/common/common'
-    import {mapState, mapMutations} from 'vuex' 
-
+    import {inputCheck,exit,layer} from '../../components/common/common'
+    import {mapState, mapActions} from 'vuex' 
+    import {orderlist} from "../../service/getData"
     export default {
         data(){
             return {
@@ -125,13 +125,29 @@
         created(){
             
         },
+        mounted(){
+            exit(this)
+            this.init()
+        },
         components: {
             
         },
         computed: {
-            
+            ...mapState([
+                "orderlist"
+            ])
         },
         methods: {
+            ...mapActions([
+                "getOrderList"
+            ]),
+            init(){
+                if(!this.$store.state.orderlist.username){
+                    this.$store.dispatch("getOrderList").then(()=>{
+                        
+                    })
+                }
+            },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },

@@ -5,9 +5,9 @@
                 <el-tab-pane label="车牌号" name="first">
                     <div class="tab-left"><span>车牌号</span></div>                
                     <div style="" >                      
-                      <el-input placeholder="" v-model="input5">                       
-                        <el-select v-model="select" slot="prepend" placeholder="京" style="width:.8rem;" class="ded">
-                          <el-option v-for='(list,index) in List' :label="list" :value="index" class="left"></el-option>
+                      <el-input placeholder="" v-model="LicenseNo" @change="setString" :maxlength='7'>               
+                        <el-select v-model="CityCode" slot="prepend" placeholder="京" style="width:.8rem;" class="ded">
+                          <el-option v-for='(list,index) in List' :label="list.provinceShort" :value="list.code" class="left"></el-option>
                         </el-select>
                       </el-input>
                     </div>
@@ -15,7 +15,7 @@
                 <div class="el-tab-pane city"> 
                     <div class="tab-left"><span>投保地区</span></div>  
                     <el-select v-model="select1"  placeholder="北京">
-                      <el-option v-for="(item,index) in city" :label="item" value="index"></el-option>
+                      <el-option v-for="(item,index) in city" :label="item.name" :value="item.code"></el-option>
                     </el-select>
                 </div>               
             </el-tabs>
@@ -27,20 +27,22 @@
 
 <script>
     import {mapState, mapActions} from 'vuex'
-    import {exit} from '../../components/common/common'
+    import {exit,layer} from '../../components/common/common'
+    import {getxbInfo} from "../../service/getData"
     export default {
     	data(){
             return{
                 activeName:"first",
-                input5:"",
-                select:"",
+                LicenseNo:"",
+                CityCode:1,
                 select1:"",
-                List:['京','津','冀','鲁','豫','黑','辽','吉','晋','浙','皖','沪','闽','渝','赣','鄂','新','湘','宁','粤','藏','琼','桂','川','贵','云','陕','甘','青','苏','港','澳','台'],
-                city:["上海","北京","天津"]
+                List:null,
+                city:null,
             }
         },
         created(){
             exit(this)
+            this.init()
         },
         mounted(){
             
@@ -50,20 +52,65 @@
         },
         props: [],
         computed: {
-            // ...mapState([
-            //     'userInfo'
-            // ]),
+            ...mapState([
+                'cityInfo',
+                "userinfo"
+            ]),
         },
         methods: {
-            // ...mapActions([
-            //     'getUserInfo'
-            // ]),
+            ...mapActions([
+                'getCityInfo',
+                "getUserInfo"
+            ]),
+            init(){
+                if(!this.$store.state.cityInfo){
+                    this.$store.dispatch('getCityInfo').then(()=>{
+                        this.List = this.$store.state.cityInfo;
+                        this.city = this.List;
+                    })
+                }else{
+                    this.List = this.$store.state.cityInfo;
+                    this.city = this.List;
+                }
+                if(!this.$store.state.getUserInfo){
+                    this.getUserInfo()
+                }
+            },
             handleClick(tab, event) {
                 console.log(tab, event);
             },
-            add_offer(){
-                this.$router.push("newoffer")
-            }
+            setString(){
+                // [...this.LicenseNo].map((itme,index,arr)=>{
+                //     if(0<=arr[0]<=9&&a<arr[0]<z){
+
+                //     }
+                // })
+                this.LicenseNo = this.LicenseNo.toUpperCase()
+            },
+            async add_offer(){
+                if(!this.LicenseNo){
+                    layer('error',"请输入车牌号",this);
+                    return
+                }
+                let list = this.List.filter((list)=>{
+                    // debugger
+                    return list.code == this.CityCode
+                })
+                let pram ={
+                    LicenseNo:list[0].provinceShort+this.LicenseNo,
+                    CityCode:this.CityCode,
+                    username:this.$store.state.userinfo.username,
+                }
+                let load = this.$loading({body:true,text:"加载中...",customClass:"loading"})
+                let data = await getxbInfo(pram);
+                load.close();
+                if(data.code == 0){
+                    localStorage.setItem("xbpram",JSON.stringify(pram));
+                    this.$router.push("newoffer");          
+                }else{
+                    layer("error","未获取到续保信息",this)
+                }
+            },
         },
 
     }
@@ -72,7 +119,9 @@
 
 <style lang="scss" scoped>
     @import '../../style/mixin';
-
+    .loading{
+        background: red;
+    }
     .in_content{
         position: absolute;
         left: 0;

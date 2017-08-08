@@ -58,7 +58,7 @@ let exit = (vm)=>{
 	if(!login.state) vm.$router.push("/login");    
 }
 // 弹窗
-let layer = (type,message,vm)=>{
+let layer = (type="error",message,vm)=>{
     vm.$message({
             type:type,
             message:message
