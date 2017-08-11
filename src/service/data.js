@@ -1,27 +1,65 @@
 // 主页左侧菜单
-export var leftView=[
+export let leftView=[
 	["车险查询",[["新增报价","addoffer"]],],
 	["订单管理",[["订单汇总","orderlist"],["预约单列表","sureorder"],["已出单列表","overorder"]]],
 	["车险查询",[["业务员注册","adduser"],["业务员管理","userlist"]]],
 ]
 //面包鞋
-export var breadcrum = [
-[
-    ["查询","addoffer"],
-    ["查询结果","newoffer"],
-    ["续保信息","lastoffer"],
-    ["报价信息","suboffer"],
+export let breadcrum = [
+    {
+        addoffer:"查询",
+        newoffer:"查询结果",
+        lastoffer:"续保信息",
+        suboffer:"报价信息"
+    },
+    {
+        orderlist:"订单汇总",
+        sureorder:"预约列表",
+        overorder:"出单列表",
+    },
 ]
-]
+// 险种
+export let instype = {
+  CheSun:"车辆损失险",
+  SanZhe:"第三者责任险",
+  DaoQiang:"全车盗抢险",
+  SiJi:"司机座位责任险",
+  ChengKe:"乘客座位责任险",
+  BoLi:"玻璃单独破碎险",
+  HuaHen:"划痕险",
+  SheShui:"涉水行驶损失险",
+  ZiRan:"自燃损失险",
+  BuJiMianCheSun:"不计免赔险（车损）",
+  BuJiMianSanZhe:"不计免赔险（三者）",
+  BuJiMianDaoQiang:"不计免赔险（盗抢）",
+  BuJiMianChengKe:"不计免赔险（乘客）",
+  BuJiMianSiJi:"不计免赔险（司机）",
+  BuJiMianHuaHen:"不计免赔险（划痕）",
+  BuJiMianSheShui:"不计免赔险（涉水）",
+  BuJiMianZiRan:"不计免赔险（自然）",
+  BuJiMianJingShenSunShi:"不计免赔险（精神损失）",
+  HcSanFangTeYue:"机动车无法找到第三方险",
+  HcJingShenSunShi:"精神损失险保额",
+  HcXiuLiChang:"指定修理厂险",
+};
 // 语义替换
-export var change_text = {
+export let change_text = {
     login:{
         "-103":"用户不存在",
         "-4":"密码不存在"
+    },
+    suboffer:{
+        1:"中国太平洋",
+        2:"中国平安",
+        4:"中国人保"
+    },
+    BoLi:{
+        1:"国产",
+        2:"进口"
     }
-}
+};
 // 车辆信息
-export var search_res = {
+export let search_res = {
         "username": "admin",
       	"phoneNumber": "138874528452",
         "CarUsedType": 1,
@@ -85,7 +123,7 @@ export var search_res = {
       	"HcXiuLiChangType":"-1"
     };
 // 请求报价
-export var get_suboffer = {
+export let get_suboffer = {
   "res": {
       "UserInfo": {
         "LicenseNo": "京Q3WA89",
@@ -183,8 +221,8 @@ export var get_suboffer = {
   "code": 0
 };
 // 证件类型
-export var idType = ["身份证","组织机构代码证","护照","军官证","港澳回乡证或台胞证","其他","港澳通行证","出生证","营业执照（社会统一信用代码）"];
+export let idType = ["身份证","组织机构代码证","护照","军官证","港澳回乡证或台胞证","其他","港澳通行证","出生证","营业执照（社会统一信用代码）"];
 // 基本险
-export var  basicIns = ["车辆损失险","第三者责任险","全车盗抢险","司机座位责任险","乘客座位责任险"];
+export let  basicIns = ["车辆损失险","第三者责任险","全车盗抢险","司机座位责任险","乘客座位责任险"];
 // 附加险
-export var otherIns = ["划痕险","玻璃单独破碎险","自燃损失险","涉水行驶损失险","车损无法找到第三方险","指定修理厂险","新增设备损失险","修理期间费用补偿险"];
+export let otherIns = ["划痕险","玻璃单独破碎险","自燃损失险","涉水行驶损失险","车损无法找到第三方险","指定修理厂险","新增设备损失险","修理期间费用补偿险"];

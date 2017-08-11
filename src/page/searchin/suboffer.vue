@@ -1,10 +1,10 @@
 <template>
     <div class="incontent">
        <ul class="tab">
-           <li v-for="(item,index) in get_suboffer.res.Items" :class="{'active':index==ischecked}" @click="check(index)">
+           <li v-for="(item,index) in Items" :class="{'active':index==ischecked}" @click="check(index)">
                <div>
-                   <p><span>中国人保</span><span>(报价成功)</span></p><!-- {{item.Source}}{{item.QuoteStatus}} -->
-                    <p>{{item.BizTotal}}元</p>
+                   <p><span>{{change_text.suboffer[item.Source]}}</span><span style="color:red">（{{item.QuoteStatus>0?"报价成功":"报价失败"}}）</span></p><!-- {{item.Source}}{{item.QuoteStatus}} -->
+                    <p>{{item.BizTotal+item.ForceTotal+item.TaxTotal}}元</p>
                </div>
            </li>
        </ul>
@@ -14,40 +14,59 @@
               style="width: 90%;background:white;margin-left:5%"
               border>
               <el-table-column
-                prop="date"
+                prop="chinese"
                 label="承险险种"
                 align='center'>
               </el-table-column>
               <el-table-column
-                prop="name"
+                prop="BaoE"
                 label="承险险种/责任限额"
                 align='center'>
               </el-table-column>
               <el-table-column
-                prop="name"
-                :label="'('+name+')保险费(元)'"
+                prop="BaoFei"
+                label="保险费"
+                align='center'>
+              </el-table-column>
+            </el-table>
+            <el-table
+              :data="tableData1"
+              style="width: 90%;background:white;margin-left:5%"
+              show-summary
+              :show-header ="false">
+              <el-table-column
+                prop="chinese"
+                label="承险险种"
+                align='center'>
+              </el-table-column>
+              <el-table-column
+                prop="allfei"
+                label="承险险种/责任限额"
                 align='center'>
               </el-table-column>
             </el-table>
        </div>
         <el-dialog
             :visible.sync="dialogVisible"
-            size="small"
             >
             <div class="calculator">
                   <h2>计算器</h2>
-                  <p><span>车牌号：</span><span></span></p>
-                  <div><span>保险公司</span><el-select value="1">
-                      <el-option value="1"></el-option>
+                  <p><span>车牌号：</span><span>{{baojia.UserInfo.LicenseNo}}</span></p>
+                  <el-row><span>保险公司</span><el-select v-model="companytype" >
+                      <el-col><el-option v-for="(item,index) in Items" :key="index"  :value="item.Source"></el-option></el-col>
+                  </el-select></el-row>
+                  <div><span>交强险优惠</span><el-select v-model="jqvalue" placeholder="选择或输入费率">
+                      <el-option v-for="(item,index) in jqItems" :key="index"  :value="item"></el-option>
                   </el-select></div>
-                  <div><span>交强险优惠</span><el-select value="1" placeholder="选择或输入费率">
-                      <el-option value="1"></el-option>
-                  </el-select></div>
-                  <div><span>商业险优惠</span><el-select value="1">
-                      <el-option value="1"></el-option>
+                  <div><span>商业险优惠</span><el-select  v-model="syvalue">
+                      <el-option v-for="(item,index) in syItems" :key="index"  :value="item"></el-option>
                   </el-select>
                   <el-checkbox>去增值税税点</el-checkbox></div>
-                  <div><el-input type="textarea" v-model="calresult" :rows="6"></el-input></div>
+                  <div class="textarea"><el-input type="textarea" v-model="calresult" :rows="6"></el-input></div>
+                  <el-row>
+                      <el-col :span="12"><span>客户电话:</span><el-input v-model="baojia.UserInfo.HolderMobile"></el-input></el-col>
+                      <el-col :span="12"><el-button>发送短信</el-button></el-col>
+                  </el-row>
               </div>
         </el-dialog>
        <div class="foot"> 
@@ -60,24 +79,37 @@
 </template>
 
 <script>
-    import{get_suboffer,} from "../../service/data"
+    import{change_text,instype} from "../../service/data"
+    import {exit,layer,analyzeTabel,slectNum} from '../../components/common/common'
     import {mapState, mapMutations} from 'vuex' 
     export default {
         data(){
             return {
                 activeName:'first',
-                resut:"bao",
-                mony:1,
+                change_text:change_text,
+                baojia:"",
+                Items:[],
                 tableData:[],
-                get_suboffer:get_suboffer,
-                name:"qwe",
+                tableData1:[],
+                jqItems:[],
+                syItems:[],
                 ischecked:0,
                 calresult:'',
-                data1:123,
+                companytype:"",
+                syvalue:20,
+                jqvalue:20,
                 dialogVisible:false,
+                alltype:{
+                    BizTotal:"商业险保费合计",
+                    ForceTotal:"交强险保费合计",
+                    TaxTotal:"车船税合计",
+                },
+                
             }
         },
         created(){
+            this.init()
+            exit();
             
         },
         components: {
@@ -87,11 +119,24 @@
             
         },
         methods: {
+            init(){
+                if(localStorage.getItem("baojia")){
+                    this.baojia = JSON.parse(localStorage.getItem("baojia")).res;
+                    this.Items = this.baojia.Items;
+                }else{
+                    this.$router.go(-1)
+                }
+                this.fliterBaoe();
+                this.tableData1 = analyzeTabel(this.alltype,this.Items[0],["chinese","allfei"]);
+                this.syItems = this.jqItems = slectNum(40);
+            },
             handleClick(){
 
             },
             check(index){
                 this.ischecked = index;
+                this.fliterBaoe();
+                this.tableData1 = analyzeTabel(this.alltype,this.Items[index],["chinese","allfei"]);
             },
             reoffer(){
                 this.$router.push("newoffer")
@@ -101,6 +146,20 @@
             },
             calculator(){
                
+            },
+            getfilter(item){
+                return item["BaoE"]>0
+            },
+            fliterBaoe(){
+                let arr = analyzeTabel(instype,this.Items[0],["chinese","BaoE","BaoFei"],this.getfilter);
+                arr.map((item,index)=>{
+                    if(item.chinese == instype.BoLi){
+                        item.BaoE = change_text.BoLi[item.BaoE]
+                    }else if(item.BaoE == 1){
+                        item.BaoE = "投保"
+                    }
+                })
+                this.tableData = arr;
             }
         }
     }
@@ -119,7 +178,7 @@
         padding-top: .3rem;
         background: #fff;
         font-size: 14px;
-        padding-bottom: .6rem;
+        padding-bottom: 1rem;
         >ul{
             width: 80%;
             margin-left: 10%;
@@ -165,12 +224,66 @@
             }
         }
         div.tabcontent{
-            padding-top: 1rem;
+            padding-top: .4rem;
             width: 80%;
             background: #EEEEEE;
+            padding-bottom: .3rem;
         }
         >div{
             margin-left: 10%;
+        }
+        .el-dialog__wrapper{
+            margin-left: 10%;
+
+            .el-dialog{
+                
+                .calculator{
+                    h2{
+                        margin-top: -.35rem;
+                        margin-bottom: .2rem;
+                    }
+                    >p{
+                        height: .5rem;
+                        line-height: .5rem;
+                        >span{
+                            width: 1.1rem;
+                            display: inline-block;
+                        }
+                    }
+                    >div{
+                        margin-top: .05rem;
+                        >span{
+                            width: 1.1rem;  
+                            display: inline-block;
+                        }
+                        height: .46rem;
+                        line-height: .46rem;
+                        .el-checkbox{
+                            margin-left: .3rem;
+                        }
+                    }
+                    .textarea{
+                        height: auto;
+                        margin-top: .1rem;
+                        margin-bottom: .2rem;
+                    }
+                    .el-row{
+                        .el-col{
+                            .el-input{
+                                 width:2rem;
+                                 margin-left:.2rem;
+                            }
+                            .el-button{
+                                padding: .12rem .3rem; 
+                                display: inline-block;
+                            }
+                        }
+                        .el-col:nth-child(2){
+                            text-align: center;
+                        }
+                    }
+                }
+            }            
         }
         .foot{
             position: fixed;
@@ -211,5 +324,4 @@
             }      
         }
     }
-    
 </style>

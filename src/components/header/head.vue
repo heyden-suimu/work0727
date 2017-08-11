@@ -1,7 +1,7 @@
 <template>
     <header id='head_top'>
       <div class="tip"><img src="../../images/logo1.png"></div>
-      <breade-crumb :bread_list="bread_list" ></breade-crumb> 
+      <breade-crumb :bread_list="bread_list" v-if="bread_list"></breade-crumb> 
       <div class="user">
         <el-dropdown trigger="click" @command="exit">
           <span class="el-dropdown-link">
@@ -28,7 +28,7 @@
         },
         created(){
             //获取用户信息
-
+            this.$parent.$on("getbread",this.getbread)
         },
         mounted(){
             this.getbread();
@@ -53,19 +53,12 @@
             },
             // 获取面包屑信息
             getbread(){
-                breadcrum.map((arr,index)=>{
-                   arr.map((n)=>{
-                        if(this.$route.path.indexOf(n[1])){
-                            // console.log(this.$route.path)
-                            // console.log(n[1])
-                            // debugger
-                            this.bread_list = breadcrum[index];
-                            return
-                        }else{
-                            this.bread_list ="";
-                        }
-                    })
+                
+                let bread = breadcrum.filter((item)=>{
+                    return item.hasOwnProperty(this.$route.name)
                 })
+                this.bread_list =bread[0];
+                // debugger
                // console.log(this.bread_list)
             }
         },

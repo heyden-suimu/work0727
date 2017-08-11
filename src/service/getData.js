@@ -16,4 +16,6 @@ var getCity = (obj={})=>fetch("get","/api/v1/insurance/city",obj)
 var getxbInfo = (obj={})=>fetch("get","/api/v1/insurance/reinfo",obj)
 // 订单汇总
 var orderlist = (obj={})=>fetch("get","/api/v1/insurance/pricerecord",obj)
-export {login,register,next_userlist,getCity,getxbInfo,orderlist}
+// 请求报价并返回报价信息
+var reqOrder = (obj={})=>fetch("get","/api/v1/insurance/preciseprice2",obj)
+export {login,register,next_userlist,getCity,getxbInfo,orderlist,reqOrder}

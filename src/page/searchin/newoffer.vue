@@ -115,9 +115,7 @@
                   <span >选择报价公司：</span>
               </div></el-col>
               <el-col :span="18"><div class="grid-content bg-purple-light type">
-                  <li><label>平安</label></li>
-                  <li ><label>太平洋</label></eli>
-                  <li ><label>人保</label></li>
+                  <li v-for="(item,index) in combx" :key="item"  ><label :class="{'active':arrBj[index]}" @click="selCombj(item,index)">{{item}}</label></li>
               </div></el-col>
             </el-row>
             <el-row class="selctype">
@@ -125,9 +123,7 @@
                   <span >选择核保公司：</span>
               </div></el-col>
               <el-col :span="18" ><div class="grid-content bg-purple-light type">
-                  <li ><label>平安</label></li>
-                  <li ><label>太平洋</label></li>
-                  <li><label>人保</label></li>
+                  <li v-for="(item,index) in combx" :key="item" ><label :class="{'active':arrHb[index]}" @click="selComhb(item,index)">{{item}}</label></li>
               </div></el-col>
             </el-row>
         </div>
@@ -144,9 +140,9 @@
                     </el-date-picker>
               </div></el-col>
               <el-col :span="12"><div class="grid-content bg-purple-light">
-                  <el-select v-model="xbjq">
-                      <el-option label="投保" :value="0"></el-option>
-                      <el-option label="不投保" :value="1"></el-option>
+                  <el-select v-model="xbjq" @change="getbxs(xbjq)">
+                      <el-option label="不投保" :value="0"></el-option>
+                      <el-option label="投保" :value="1"></el-option>         
                   </el-select>
               </div></el-col>
             </el-row>
@@ -161,9 +157,9 @@
                     </el-date-picker>
               </div></el-col>
               <el-col :span="12"><div class="grid-content bg-purple-light">
-                  <el-select v-model="xbsy">
-                      <el-option label="投保" :value="0"></el-option>
-                      <el-option label="不投保" :value="1"></el-option>
+                  <el-select v-model="xbsy" @change="getbxs(xbsy)">
+                      <el-option label="不投保" :value="0"></el-option>
+                      <el-option label="投保" :value="1"></el-option>
                   </el-select>
               </div></el-col>
             </el-row>
@@ -175,15 +171,15 @@
                   <span>{{item.name}}</span>
               </div></el-col>
               <el-col :span="6"><div class="grid-content bg-purple-light">
-                  <div @click=checkins(item.code)>
-                        <el-checkbox v-if="item.hasOwnProperty('mianpei')" v-model="item.mianpei" >不计免赔</el-checkbox>
-                        <el-select v-model="item.value" v-if="!item.slect_list">
-                          <el-option label="投保" :value="0"></el-option>
-                          <el-option label="不投保" :value="1"></el-option>
-                        </el-select>
-                        <el-select v-model="item.value" v-if="item.slect_list">
+                  <div>
+                        <el-checkbox v-if="item.hasOwnProperty('mianpei')" v-model="item.mianpei" @change="checkins(item.code,item.mianpei)">不计免赔</el-checkbox>
+                        <el-select v-model="item.value" v-if="!item.slect_list" @change="updatexbinfo(item.code,item.value)">
+                          <el-option label="投保" :value="1"></el-option>
                           <el-option label="不投保" :value="0"></el-option>
-                          <el-option v-for="(item,index) in item.slect_list"  :value="item" ></el-option>
+                        </el-select>
+                        <el-select v-model="item.value" v-if="item.slect_list" @change="updatexbinfo(item.code,item.value)">
+                          <el-option label="不投保" :value="0"></el-option>
+                          <el-option v-for="(item,index) in item.slect_list"  :value="item"></el-option>
                         </el-select>
                   </div>
               </div></el-col>
@@ -196,15 +192,18 @@
                   <span>{{item.name}}</span>
               </div></el-col>
               <el-col :span="6"><div class="grid-content bg-purple-light">
-                  <div @click=checkins(item.code)>
-                        <el-checkbox v-if="item.hasOwnProperty('mianpei')" v-model="item.mianpei">不计免赔</el-checkbox>
-                        <el-select v-model="item.value" v-if="!item.slect_list" >
-                          <el-option label="投保" :value="0"></el-option>
-                          <el-option label="不投保" :value="1"></el-option>
-                        </el-select>
-                        <el-select v-model="item.value" v-if="item.slect_list">
+                  <div>
+                        <el-checkbox v-if="item.hasOwnProperty('mianpei')" v-model="item.mianpei" @change="checkins(item.code,item.mianpei)">不计免赔</el-checkbox>
+                        <el-select v-model="item.value" v-if="!item.hasOwnProperty('slect_list')&&!item.hasOwnProperty('slect_label')" @change="updatexbinfo(item.code,item.value)">
+                          <el-option label="投保" :value="1"></el-option>
                           <el-option label="不投保" :value="0"></el-option>
-                          <el-option v-for="item in item.slect_list"  :value="item" ></el-option>
+                        </el-select>
+                        <el-select v-model="item.value" v-if="item.hasOwnProperty('slect_list')" @change="updatexbinfo(item.code,item.value)">
+                          <el-option v-for="(item,count) in item.slect_list"  :value="count" :label="item"></el-option>
+                        </el-select>
+                        <el-select v-model="item.value" v-if="item.hasOwnProperty('slect_label')" @change="updatexbinfo(item.code,item.value)">
+                           <el-option label="不投保" :value="0"></el-option>
+                          <el-option v-for="item in item.slect_label"  :value="item"></el-option>
                         </el-select>
                   </div>
               </div></el-col>
@@ -221,8 +220,9 @@
 
 <script>
     import {mapState, mapActions,mapGetters} from 'vuex'
-    import {exit,layer} from '../../components/common/common'
-    import{search_res,idType,basicIns,otherIns,} from "../../service/data"
+    import {exit,layer,Cookie,inputCheck} from '../../components/common/common'
+    import{search_res,idType,basicIns,otherIns} from "../../service/data"
+    import {reqOrder} from "../../service/getData"
     export default {
     	data(){
             return{
@@ -231,19 +231,24 @@
                 idType:idType,
                 xbjq:0,
                 xbsy:0,
+                ForceTax:'',
                 basicIns:basicIns,
                 otherIns:otherIns,
                 checked:true,
                 search_Res:null,
+                combx:["人保","太平洋","平安"],
+                combxIndex:[4,1,2],
+                arrBj:{0:false,1:false,2:false},
+                arrHb:{0:false,1:false,2:false},
             }
         },
         created(){
             //获取用户信息
-            
+            this.init()
         },
         mounted(){
             exit(this)
-            this.init()
+            
         },
         components:{
         },
@@ -269,24 +274,114 @@
                 this.search_Res = this.$store.state.xbInfo;
                 this.basicIns = this.$store.getters.getxbinfo.basic;
                 this.otherIns = this.$store.getters.getxbinfo.other;
-                if(this.search_Res.CheSun){
-                    this.search_Res.CheSun = 0;
-                }else{
-                    this.search_Res.CheSun = 1;
-                }
             },
-            checkins(name){
-                if(name=="CheSun"&&this.xbsy==1){
+            checkins(name,value){
+                // debugger
+                if(name=="CheSun"&&this.xbsy==0){
                     layer("error","商业险未投保",this)
-                    return
+                    value = false;
                 }
+                this.$store.state.xbInfo["BuJiMian"+ name] = value?1:0;
             },
             readLast(){
                 this.$router.push("lastoffer")
             },
-            suboffer(){
-                this.$router.push("suboffer")
+            selComhb(item,index){
+                if(!this.arrHb[index])  this.arrBj[index] =true;
+                this.arrHb[index] = !this.arrHb[index]
             },
+            selCombj(item,index){
+                if(this.arrBj[index]) this.arrHb[index] =false;
+                this.arrBj[index] = !this.arrBj[index]
+ 
+            },
+            getbxs(){
+                if(this.xbsy == 0&&this.xbjq == 1){
+                    this.ForceTax = 2;
+                }else if(this.xbsy == 1&&this.xbjq == 0){
+                    this.ForceTax = 0;
+                }else if(this.xbsy == 1&&this.xbjq == 1){
+                    this.ForceTax = 1;
+                }
+                
+            },
+            async suboffer(){
+                let data = this.$store.state.xbInfo;
+                let QuoteGroup = 0,SubmitGroup = 0;
+                for(let item in this.arrBj){
+                    if(this.arrBj[item]){
+                        QuoteGroup += this.combxIndex[item];
+                    }
+                }
+                for(let item in this.arrHb){
+                    if(this.arrHb[item]){
+                        SubmitGroup += this.combxIndex[item];
+                    }
+                }
+                let check = inputCheck([
+                    [QuoteGroup == 0,"请选择报价公司"],
+                    [!this.ForceTax,"请投保商业税或交强税"],
+                ],this)
+                if(check == -1){
+                    return
+                }
+                let obj ={
+                    username:data.username,
+                    LicenseNo:this.search_Res.LicenseNo,
+                    QuoteGroup:QuoteGroup,
+                    SubmitGroup:SubmitGroup,
+                    ForceTax:this.ForceTax,
+                    BoLi:data.BoLi,
+                    SheShui:data.SheShui,
+                    HuaHen:data.HuaHen,
+                    SiJi:data.SiJi,
+                    ChengKe:data.ChengKe,
+                    CheSun:this.getpramvalue("basic","CheSun"),
+                    DaoQiang:data.DaoQiang,
+                    SanZhe:data.SanZhe,
+                    ZiRan:data.ZiRan,
+                    HcXiuLiChang:data.HcXiuLiChang,
+                    BuJiMianCheSun:this.getprammianpei("basic","CheSun"),
+                    BuJiMianDaoQiang:this.getprammianpei("basic","DaoQiang"),
+                    BuJiMianSanZhe:this.getprammianpei("basic","SanZhe"),
+                    BuJiMianChengKe:this.getprammianpei("basic","ChengKe"),
+                    BuJiMianSiJi:this.getprammianpei("basic","SiJi"),
+                    BuJiMianHuaHen:this.getprammianpei("other","HuaHen"),
+                    BuJiMianSheShui:this.getprammianpei("other","SheShui"),
+                    BuJiMianZiRan:this.getprammianpei("other","ZiRan"),
+                    BuJiMianJingShenSunShi:this.getprammianpei("other","HcJingShenSunShi"),
+                }
+                let load = this.$loading({body:true,text:"加载中...",customClass:"loading"})
+                try{
+                    var res = await reqOrder(obj) 
+                    load.close();
+                    localStorage.setItem("baojia",JSON.stringify(res))
+                    if(res.code == 0){
+                        this.$router.push("suboffer")
+                    }else{
+                        layer("error",res.message.StatusMessage,this)
+                    }
+                }catch(err){
+                    load.close();
+                    layer("error","请求错误",this);
+                }       
+            },
+            getpramvalue(type,pram){
+                let arr = this.$store.getters.getxbinfo[type].filter((item)=>{
+                    return item.code == pram;
+                })
+                return arr[0].value
+            },
+            getprammianpei(type,pram){
+                let arr = this.$store.getters.getxbinfo[type].filter((item)=>{
+                    return item.code == pram;
+                })
+                return arr[0].mianpei?1:0;
+            },
+            updatexbinfo(name,value){
+                // debugger
+                 this.$store.state.xbInfo[name] = value
+            }
         },
 
     }
@@ -330,15 +425,45 @@
                 color:#393939;
             }
             .selctype{
-                padding: .2rem 0;
+                padding: .08rem .1rem;
+                >div{
+                    height: .4rem;
+                    line-height: .4rem;
+                }
                 label{
-                    padding: .08rem .3rem .1rem .5rem;
+                    padding: 0rem .3rem 0rem .5rem;
                     border: 1px solid #ccc;
                     border-radius: 4px;
                     overflow: hidden;
+                    position: relative;
+                    display: block;  
                 }
-                label:hover{
-                    border-color:red;
+                // label:hover{
+                //     border-color:red;
+                // },
+                label.active{
+                    border: 1px solid #ea413c;
+                    overflow: hidden;
+                    display: block;
+                }
+                label.active::before{
+                    content: "✓";
+                    width: .2rem;
+                    color: white;
+                    position: absolute;
+                    z-index: 10;
+                    top: -9px;
+                    right: -4px;
+                }
+                label.active::after{
+                    content: "";
+                    width: 1rem;
+                    height: .22rem;
+                    background: #ea413c;
+                    position: absolute;
+                    transform:rotate(43deg);
+                    top: -6px;
+                    right: -33px;
                 }
                 .type{
                     li{
@@ -392,7 +517,7 @@
                     line-height: .5rem;
                 }
                 .el-select{
-                    width: 1.2rem;
+                    width: 1.3rem;
                     height: .5rem;
                     line-height: .5rem;
                     float: right;
@@ -402,6 +527,8 @@
                     content: "";
                     display:block;
                     clear: both;
+                    visibility: hidden;
+                    overflow: hidden;
                 }
             }
         }

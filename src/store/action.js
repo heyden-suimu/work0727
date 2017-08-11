@@ -45,7 +45,6 @@ export default {
 			let data = await getxbInfo(JSON.parse(localStorage.getItem('xbpram')));
 			commit(XB_INFO,data.res)
 		}
-		
 	},
 	async getOrderList({
 		commit,

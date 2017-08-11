@@ -12,12 +12,13 @@ export default {
 				{value:state.xbInfo.ChengKe,name:"乘客座位责任险",code:"ChengKe",mianpei:!!state.xbInfo.BuJiMianSiJi,slect_list:[10000,20000,30000,40000,50000,60000,70000]},				
 			],
 			'other':[
-				{value:state.xbInfo.HuaHen,name:"划痕险",code:"",code:"HuaHen",mianpei:!!state.xbInfo.BuJiMianHuaHen,slect_list:[2000,5000,10000,20000]},
+				{value:state.xbInfo.HuaHen,name:"划痕险",code:"",code:"HuaHen",mianpei:!!state.xbInfo.BuJiMianHuaHen,slect_label:[2000,5000,10000,20000]},
+				{value:parseInt(state.xbInfo.BoLi),name:"玻璃单独破碎险",code:"BoLi",slect_list:["不投保","国产","进口"]},
 				{value:state.xbInfo.SheShui,name:"涉水行驶损失险",code:"SheShui",mianpei:!!state.xbInfo.BuJiMianSheShui},
 				{value:state.xbInfo.ZiRan,name:"自燃损失险",code:"ZiRan",mianpei:!!state.xbInfo.BuJiMianZiRan},
 				{value:state.xbInfo.HcSanFangTeYue,name:"机动车无法找到第三方险",code:"HcSanFangTeYue"},
 				{value:state.xbInfo.HcJingShenSunShi,name:"精神损失险保额",code:"HcJingShenSunShi",mianpei:state.xbInfo.BuJiMianJingShenSunShi},
-				{value:parseInt(state.xbInfo.HcXiuLiChang),name:"指定修理厂险",code:"HcXiuLiChang",slect_list:["国产","进口"]},
+				{value:parseInt(state.xbInfo.HcXiuLiChang),name:"指定修理厂险",code:"HcXiuLiChang",slect_list:["不投保","国产","进口"]},
 			]
 		}
 		return obj

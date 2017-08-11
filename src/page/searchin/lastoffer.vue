@@ -29,12 +29,12 @@
           style="width: 80%;background:white"
           border>
           <el-table-column
-            prop="date"
+            prop="chinese"
             label="承险险种"
             align='center'>
           </el-table-column>
           <el-table-column
-            prop="name"
+            prop="BaoE"
             label="承险险种/责任限额"
             align='center'>
           </el-table-column>
@@ -46,19 +46,21 @@
 </template>
 
 <script>
-    import {mapState, mapMutations} from 'vuex' 
-    import{search_res,} from "../../service/data"
+    import {mapState, mapMutations} from 'vuex'
+    import {exit,layer,analyzeTabel} from '../../components/common/common' 
+    import{search_res,instype,get_suboffer} from "../../service/data"
     export default {
         data(){
             return {
                 search_Res:search_res,
-                tableData:[
-                    
-                ]
+                tableData:[                   
+                ],
             }
         },
         created(){
-            
+            exit();  
+            this.init()
+                  
         },
         components: {
 
@@ -67,11 +69,28 @@
             
         },
         methods: {
+            init(){
+              this.fliterBaoe();
+            },
             lastsub(){
                 this.$router.push("newoffer");
                 this.$message({
                     message:"已按勾选去年险种"
                 })
+            },
+            getfilter(item){
+                return item["BaoE"]>0
+            },
+            fliterBaoe(){
+                let arr = analyzeTabel(instype,get_suboffer.res.Items[0],["chinese","BaoE","BaoFei"],this.getfilter);
+                arr.map((item,index)=>{
+                    if(item.chinese == instype.BoLi){
+                        item.BaoE = change_text.BoLi[item.BaoE]
+                    }else if(item.BaoE == 1){
+                        item.BaoE = "投保"
+                    }
+                })
+                this.tableData = arr;
             }
         }
     }

@@ -10,7 +10,8 @@ const state = {
 	userinfo:{userId:null},
 	cityInfo:null,
 	xbInfo:{LicenseNo:null},
-	orderlist:{username:null}	
+	orderlist:{username:null},
+	recordInfo:{}	
 }
 
 export default new Vuex.Store({

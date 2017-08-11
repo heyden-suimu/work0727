@@ -12,10 +12,11 @@ let getPrams = function (url) {
 // 输入框判读
  let inputCheck =  function(arr,vm){
  	try{
-	 	for(let i=0,len=arr.length;i<len;i++){		
+	 	for(let i=0,len=arr.length;i<len;i++){
+	 			if(!arr[3]) arr[i][3] ="error";		
 	 			if(arr[i][0]&&!arr[i][2]){
 	 				vm.$message({
-		 				type:"error",
+		 				type:arr[i][3],
 		 				message:arr[i][1],
 		 			})
 		 			return -1;
@@ -63,5 +64,46 @@ let layer = (type="error",message,vm)=>{
             type:type,
             message:message
     })
+}
+//数据解析（针对表格）
+let  analyzeTabel = (souce,req={},desti=[],rule=(res)=>{return true})=>{
+	let obj = {},back = [];
+	if(souce instanceof Array){	
+			souce.map((item)=>{
+				let obj = new Object();
+				// obj["name"] = souce[item]
+				desti.map((value)=>{
+					if(req[item].hasOwnProperty(value)){
+						obj[value] = req[item][value];						
+					}else{
+						obj[value] = req[item]
+					}									
+				})
+				back.push(obj);
+		})		
+	}else if(souce instanceof Object){
+		for (var item in souce){
+			let obj = new Object();
+			desti.map((value)=>{
+				if(req[item].hasOwnProperty(value)){
+					obj[value] = req[item][value];					
+				}else if(value == "chinese"){
+					obj[value] = souce[item]
+				}else{
+					obj[value] = req[item]	
+				}									
+			})
+			back.push(obj);
+		}
+	}
+	return  back.filter(res => rule(res));
+}
+// 下拉框范围
+let slectNum = (end,start=0)=>{
+	let arr = [];
+	for(var i=start;i<=end;i++){
+		arr.push(i)
+	}
+	return arr;
 } 
-export {getPrams,inputCheck,Cookie,exit,layer}
+export {getPrams,inputCheck,Cookie,exit,layer,analyzeTabel,slectNum}
