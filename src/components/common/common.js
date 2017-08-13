@@ -66,7 +66,7 @@ let layer = (type="error",message,vm)=>{
     })
 }
 //数据解析（针对表格）
-let  analyzeTabel = (souce,req={},desti=[],rule=(res)=>{return true})=>{
+let  analyzeTabel = (souce,req={},desti=[],rule=(res)=>true)=>{
 	let obj = {},back = [];
 	if(souce instanceof Array){	
 			souce.map((item)=>{

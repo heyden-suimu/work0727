@@ -46,13 +46,13 @@
 </template>
 
 <script>
-    import {mapState, mapMutations} from 'vuex'
+    import {mapState, mapActions,} from 'vuex'
     import {exit,layer,analyzeTabel} from '../../components/common/common' 
     import{search_res,instype,get_suboffer} from "../../service/data"
     export default {
         data(){
             return {
-                search_Res:search_res,
+                search_Res:'',
                 tableData:[                   
                 ],
             }
@@ -66,10 +66,21 @@
 
         },
         computed: {
-            
+            ...mapState([
+                'userInfo',
+                "xbInfo"
+            ]),
         },
         methods: {
-            init(){
+          ...mapActions([
+                'getUserInfo',
+                "getXbInfo"
+            ]),
+           async init(){
+             if(!this.$store.state.xbInfo.LicenseNo){
+                  await this.$store.dispatch("getXbInfo")
+              }
+              this.search_Res = this.$store.state.xbInfo;
               this.fliterBaoe();
             },
             lastsub(){

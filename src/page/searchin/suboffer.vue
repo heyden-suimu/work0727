@@ -3,8 +3,8 @@
        <ul class="tab">
            <li v-for="(item,index) in Items" :class="{'active':index==ischecked}" @click="check(index)">
                <div>
-                   <p><span>{{change_text.suboffer[item.Source]}}</span><span style="color:red">（{{item.QuoteStatus>0?"报价成功":"报价失败"}}）</span></p><!-- {{item.Source}}{{item.QuoteStatus}} -->
-                    <p>{{item.BizTotal+item.ForceTotal+item.TaxTotal}}元</p>
+                   <p><span>{{change_text.suboffer[item.Source]}}</span><span style="color:red;margin-left:.13rem;">{{item.QuoteStatus>0?item.BizTotal+item.ForceTotal+item.TaxTotal+'元':"报价失败"}}</span></p><!-- {{item.Source}}{{item.QuoteStatus}} -->
+                    <p style="color:red">{{hebao}}</p>
                </div>
            </li>
        </ul>
@@ -99,6 +99,7 @@
                 syvalue:20,
                 jqvalue:20,
                 dialogVisible:false,
+                hebao:"核保中",
                 alltype:{
                     BizTotal:"商业险保费合计",
                     ForceTotal:"交强险保费合计",
@@ -126,7 +127,7 @@
                 }else{
                     this.$router.go(-1)
                 }
-                this.fliterBaoe();
+                this.fliterBaoe(0);
                 this.tableData1 = analyzeTabel(this.alltype,this.Items[0],["chinese","allfei"]);
                 this.syItems = this.jqItems = slectNum(40);
             },
@@ -135,7 +136,7 @@
             },
             check(index){
                 this.ischecked = index;
-                this.fliterBaoe();
+                this.fliterBaoe(index);
                 this.tableData1 = analyzeTabel(this.alltype,this.Items[index],["chinese","allfei"]);
             },
             reoffer(){
@@ -150,10 +151,10 @@
             getfilter(item){
                 return item["BaoE"]>0
             },
-            fliterBaoe(){
-                let arr = analyzeTabel(instype,this.Items[0],["chinese","BaoE","BaoFei"],this.getfilter);
+            fliterBaoe(index){
+                let arr = analyzeTabel(instype,this.Items[index],["chinese","BaoE","BaoFei"],this.getfilter);
                 arr.map((item,index)=>{
-                    if(item.chinese == instype.BoLi){
+                    if(item.chinese == instype.BoLi||item.chinese == instype.HcXiuLiChang){
                         item.BaoE = change_text.BoLi[item.BaoE]
                     }else if(item.BaoE == 1){
                         item.BaoE = "投保"
@@ -208,15 +209,15 @@
                 }
             }
             li:nth-child(1) div{
-                background: url("../../images/rb.png") no-repeat .4rem center;
+                background: url("../../images/tpy.png") no-repeat .4rem center;
                 background-size: .5rem;
                 }
             li:nth-child(2) div{
-                background: url("../../images/pa.png") no-repeat .4rem center;
+                background: url("../../images/rb.png") no-repeat .4rem center;
                 background-size: .5rem;
             }
             li:nth-child(3) div{
-                background: url("../../images/tpy.png") no-repeat .4rem center;
+                background: url("../../images/pa.png") no-repeat .4rem center;
                 background-size: .5rem;
             }     
             .active{

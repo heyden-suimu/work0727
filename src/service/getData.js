@@ -18,4 +18,8 @@ var getxbInfo = (obj={})=>fetch("get","/api/v1/insurance/reinfo",obj)
 var orderlist = (obj={})=>fetch("get","/api/v1/insurance/pricerecord",obj)
 // 请求报价并返回报价信息
 var reqOrder = (obj={})=>fetch("get","/api/v1/insurance/preciseprice2",obj)
-export {login,register,next_userlist,getCity,getxbInfo,orderlist,reqOrder}
+// 订单分配
+var disOrder = (obj={})=>fetch("post","/api/v1/insurance/order",obj);
+// 获取下级列表
+var getsuperior = (obj={})=>fetch("get","/api/v1/insurance/user",obj);
+export {login,register,next_userlist,getCity,getxbInfo,orderlist,reqOrder,disOrder,getsuperior}

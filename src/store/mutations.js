@@ -17,6 +17,6 @@ export default {
 		state.xbInfo = xbInfo;
 	},
 	[ORDER_LIST](state, orderlist) {
-		state.xbInfo = orderlist;
+		state.orderlist = orderlist;
 	},
 }

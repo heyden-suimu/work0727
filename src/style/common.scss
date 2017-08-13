@@ -166,3 +166,13 @@ html,body{
 .loading {
     background: rgba(0,0,0,.05);
 }
+//订单总汇，时间input框
+.orderlist{
+    .el-date-editor{
+        width: 1.8rem;
+    }
+    .el-dialog{
+        min-height: 3rem;
+        bottom:0rem;
+    }
+}

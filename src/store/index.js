@@ -10,7 +10,7 @@ const state = {
 	userinfo:{userId:null},
 	cityInfo:null,
 	xbInfo:{LicenseNo:null},
-	orderlist:{username:null},
+	orderlist:null,
 	recordInfo:{}	
 }
 

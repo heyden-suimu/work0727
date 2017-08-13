@@ -255,7 +255,7 @@
         props: [],
         computed: {
             ...mapState([
-                'userInfo',
+                'userinfo',
                 "xbInfo"
             ]),
             ...mapGetters([

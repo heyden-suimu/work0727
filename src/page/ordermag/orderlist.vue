@@ -1,28 +1,86 @@
 <template>
-    <div class="incontent">
+    <div class="incontent orderlist">
          <div class="search">
             <el-row>
               <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>车牌号：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>车牌号：</span><el-input class="serinput" v-model="LicenseNo"></el-input>
               </div></el-col>
               <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>录入时间：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>录入时间：</span>
+                  <el-date-picker
+                  v-model="value1"
+                  type="date"
+                  placeholder="选择日期"
+                  :picker-options="pickerOptions0">
+                </el-date-picker>
               </div></el-col>
-              <el-col :span="8"><div class="grid-content bg-purple">
+              <el-col :span="7"><div class="grid-content bg-purple">
                   <span>业务员：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
             </el-row>
             <el-row>
               <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>交强险到期时间：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>交强险到期时间：</span>
+                  <el-date-picker
+                  v-model="value1"
+                  type="date"
+                  placeholder="选择日期"
+                  :picker-options="pickerOptions0">
+                </el-date-picker>
               </div></el-col>
               <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>商业险到期时间：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>商业险到期时间：</span>
+                  <el-date-picker
+                  v-model="value1"
+                  type="date"
+                  placeholder="选择日期"
+                  :picker-options="pickerOptions0">
+                </el-date-picker>
               </div></el-col>
             </el-row>
-            <div class="serfoot">
-                <el-button>搜索</el-button> 
-                <el-button>分配</el-button>
+            <el-dialog
+            :visible.sync="dialogVisible"
+            title="选择业务员"
+            >
+                <div class="userlist">
+                    <el-row>
+                        <el-col :span="6"><el-input placeholder="输入业务员姓名"></el-input></el-col>
+                        <el-col :span="6"><el-button>搜索</el-button></el-col>
+                    </el-row>
+                  <el-table
+                  :data="tableData_user"
+                  style="width: 100%;"
+                  border
+                  >
+                      <el-table-column
+                      type="selection"
+                      width="55">
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="业务员姓名"
+                        >
+                      </el-table-column>
+                        <el-table-column
+                        prop="username"
+                        label="业务员账号"
+                        >
+                        </el-table-column>
+                  </el-table>
+                  <el-pagination
+                      @size-change="handleSizeChange_user"
+                      @current-change="handleCurrentChange_user"
+                      :current-page="currentPage_user"
+                      :page-sizes="listsizes_user"
+                      :page-size="listsize_user"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="totalList_user">
+                    </el-pagination>
+                </div>
+            </el-dialog>
+            <div class="serfoot" >
+                <el-button @click="search">搜索</el-button> 
+                <el-button @click="distribute">分配</el-button>
                 <el-button>撤销</el-button>  
             </div>
         </div>
@@ -37,36 +95,41 @@
           width="55">
           </el-table-column>
           <el-table-column
-            prop="name"
+            prop="reinfo.LicenseOwner"
             label="车主"
             >
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="reinfo.LicenseNo"
             label="车牌号"
             >
           </el-table-column>
           <el-table-column
-            prop="date"
+            width="150"
+            prop="reinfo.ForceExpireDate"
             label="交强险到期时间">
           </el-table-column>
           <el-table-column
-            prop="date"
+            width="150"
+            prop="reinfo.BusinessExpireDate"
             label="商业险到期时间">
           </el-table-column>
           <el-table-column
-            prop="date"
+            prop="reinfo.create_time"
+            width="200"
+            show-overflow-tooltip
             label="录入时间">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="业务员">
           </el-table-column>
           <el-table-column
             label="分配状态">
             <template scope="scope">
-                <el-button @click="handleStatus(scope.$index,scope.row.status)" type="text" size="small">{{scope.row.status}}</el-button>
+                <!-- <el-button @click="handleStatus(scope.$index,scope.row.reinfo.IdType)" type="text" size="small">{{scope.row.reinfo.IdType}}</el-button> -->
+                {{scope.row.status==0?"未提交":(scope.row.status==1?"已提交,待审核":"已出单")}}
             </template>
+          </el-table-column>
+          <el-table-column
+            prop="reinfo.username"
+            label="业务员">
           </el-table-column>
           <el-table-column
             width="80"
@@ -80,11 +143,11 @@
             <el-pagination
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="currentPage4"
-              :page-sizes="[100, 200, 300, 400]"
-              :page-size="100"
+              :current-page="currentPage"
+              :page-sizes="listsizes"
+              :page-size="listsize"
               layout="total, sizes, prev, pager, next, jumper"
-              :total="400">
+              :total="totalList">
             </el-pagination>
         </div>
     </div>
@@ -93,33 +156,28 @@
 <script>
     import {inputCheck,exit,layer} from '../../components/common/common'
     import {mapState, mapActions} from 'vuex' 
-    import {orderlist} from "../../service/getData"
+    import {orderlist,disOrder,getsuperior} from "../../service/getData"
     export default {
         data(){
             return {
                phone:"",
-               currentPage4: 4,
-               tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '京QY1111',
-                    status:"未分配"
-                  }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '京QY1111',
-                    status:"已分配"
-                  }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '京QY1111',
-                    status:"已分配"
-                  }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '京QY1111',
-                    status:"未分配"
-                  }]
+               tableData: [],
+               tableData_user:[],
+               totalList:0,
+               totalList_user:0,
+               listsizes:[8,12,16,20],
+               listsizes_user:[4,8,12,16],
+               listsize:8,
+               listsize_user:4,
+               currentPage:1,
+               currentPage_user:1,
+               start:0,
+               start_user:0,
+               obj:{},
+               orderList:[],
+               value1:'',
+               LicenseNo:"",
+               dialogVisible:false,
             }
         },
         created(){
@@ -134,28 +192,53 @@
         },
         computed: {
             ...mapState([
+                "userinfo",
                 "orderlist"
             ])
         },
         methods: {
             ...mapActions([
-                "getOrderList"
+                "getOrderList",
+                "getUserInfo"
             ]),
-            init(){
-                if(!this.$store.state.orderlist.username){
-                    this.$store.dispatch("getOrderList").then(()=>{
-                        
-                    })
+            async init(){
+                if(!this.$store.state.orderlist){
+                  await  this.$store.dispatch("getOrderList");
                 }
+                this.tableData = this.$store.state.orderlist.slice(this.start,this.start+this.listsize);
+                this.totalList = this.$store.state.orderlist.length;
+                this.orderList = this.$store.state.orderlist;
+                // let obj = {
+                //     username:JSON.parse(Cookie.getCookie("login")).username,
+                //     start:0,
+                //     count:8,
+                // }
+                // let data = await orderlist(obj);
+                // this.tableData = data.res;
+                // this.totalList = data.res.length;             
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
-            handleSizeChange(){
-            
+            handleSizeChange(size){
+                this.start = this.listsize*(this.currentPage-1);
+                this.listsize = size;               
+                this.tableData= this.orderlist.slice(this.start,this.start+size);
             },
-            handleCurrentChange(){
-
+            handleCurrentChange(page){
+                this.start = this.listsize*(page-1);  
+                this.currentPage = page; 
+                this.tableData= this.orderlist.slice(this.start,this.start+this.listsize);
+            },
+            handleSizeChange_user(size){
+                this.start_user = this.listsize_user*(this.currentPage_user-1);
+                this.listsize_user = size;               
+                this.tableData_user= this.tableData_user.slice(this.start_user,this.start_user+size);
+            },
+            handleCurrentChange_user(page){
+                this.start_user = this.listsize_user*(page-1);  
+                this.currentPage_user = page; 
+                this.tableData_user= this.tableData_user.slice(this.start_user,this.start_user+this.listsize_user);
             },
             handleClick(){
                 this.$router.push("orderoffer")
@@ -165,7 +248,34 @@
                     title:"改变状态",
                     message:"确定将改变"+text+"状态?"
                 })
-            }
+            },
+            pickerOptions0: {
+              disabledDate(time) {
+                return time.getTime() < Date.now() - 8.64e7;
+              }
+            },
+            search(){
+
+            },
+            async distribute(){
+                this.dialogVisible = true;
+                let userinfo = this.$store.state.userinfo;
+                if(!userinfo.userId){
+                    await this.$store.dispatch("getUserInfo")
+                }
+                if(userinfo.level == 2){
+                  this.tableData_user = [
+                    {name:userinfo.name,username:userinfo.username}
+                  ]
+                }else{
+                    let obj = {
+                        userId:userinfo.userId,
+                    }
+                     let data = await getsuperior(obj)
+                     this.tableData_user = data.res;
+                }
+                this.totalList_user = this.tableData_user.length;  
+            },
         }
     }
 
@@ -188,6 +298,8 @@
             .serinput{
                 width: 1.6rem;
             }
+            
+                
             .el-col{
                 text-align: right;
                 margin-bottom: .16rem;
@@ -196,7 +308,8 @@
                 width: 100%;
                 text-align: right;
                 padding-bottom: .1rem;
-                margin-top: -.5rem;
+                position:relative;
+                top: -.4rem;
                 padding-right: .5rem;
                 border-bottom: 1px solid #ccc;
                 // margin-bottom: .5rem;
@@ -237,7 +350,16 @@
         }
         .el-pagination{
             text-align: center;
-            margin-top: .5rem;
+            margin-top: .22rem;
+            margin-bottom: .2rem;
+        }
+        .userlist{
+            .el-row{
+                margin-top: -.2rem;
+            }
+            .el-table{
+
+            }
         }  
     }
     

@@ -11,6 +11,7 @@ import {
 	USER_INFO,
 	CITY_INFO,
 	XB_INFO,
+	ORDER_LIST,
 } from './mutation-types.js'
 
 
@@ -50,9 +51,9 @@ export default {
 		commit,
 		state
 	}) {
-		if(!state.orderlist.username){
+		if(!state.orderlist){
 			let data = await orderlist({username:JSON.parse(Cookie.getCookie("login")).username});
-			commit(XB_INFO,data.res)
+			commit(ORDER_LIST,data.res)
 		}
 		
 	},
