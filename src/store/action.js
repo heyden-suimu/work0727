@@ -43,8 +43,8 @@ export default {
 		state
 	}) {
 		if(!state.xbInfo.LicenseNo){
-			let data = await getxbInfo(JSON.parse(localStorage.getItem('xbpram')));
-			commit(XB_INFO,data.res)
+			let data = JSON.parse(sessionStorage.getItem('xbpram'));
+			commit(XB_INFO,data)
 		}
 	},
 	async getOrderList({

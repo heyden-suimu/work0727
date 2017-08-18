@@ -18,19 +18,6 @@
                   <span>新车置购价：</span><span>{{search_Res.PurchasePrice}} 元</span>
               </div></el-col>
             </el-row>
-            <el-row>
-              <el-col :span="12"><div class="grid-content bg-purple">
-                <span>报价方式：</span>
-                  <el-select placeholder="按年续费报价" value="1">
-                      <el-option
-                      key="123"
-                      label="按年续费报价"
-                      checked=true
-                      value="1">
-                    </el-option>
-                  </el-select>
-              </div></el-col>
-            </el-row>
         </div>        
         <div>
             <h3>车主信息</h3>
@@ -232,23 +219,23 @@
                 xbjq:0,
                 xbsy:0,
                 ForceTax:'',
-                basicIns:basicIns,
-                otherIns:otherIns,
+                basicIns:null,
+                otherIns:null,
                 checked:true,
                 search_Res:null,
                 combx:["人保","太平洋","平安"],
                 combxIndex:[4,1,2],
-                arrBj:{0:false,1:false,2:false},
-                arrHb:{0:false,1:false,2:false},
+                arrBj:{0:true,1:false,2:false},
+                arrHb:{0:true,1:false,2:false},
             }
         },
         created(){
             //获取用户信息
-            this.init()
+            
         },
         mounted(){
             exit(this)
-            
+            this.init()    
         },
         components:{
         },
@@ -267,13 +254,17 @@
                 'getUserInfo',
                 "getXbInfo"
             ]),
-            async init(){
-                if(!this.$store.state.xbInfo.LicenseNo){
-                    await this.$store.dispatch("getXbInfo")
+            async init(){    
+                 if(!sessionStorage.getItem("xbpram")){
+                    layer("warning","请查询",this)
+                    this.$router.push("addoffer")
+                    return
                 }
-                this.search_Res = this.$store.state.xbInfo;
+                this.getXbInfo()
+                this.search_Res = JSON.parse(sessionStorage.getItem("xbpram"));
                 this.basicIns = this.$store.getters.getxbinfo.basic;
                 this.otherIns = this.$store.getters.getxbinfo.other;
+                console.log(this.otherIns)
             },
             checkins(name,value){
                 // debugger
@@ -355,7 +346,7 @@
                 try{
                     var res = await reqOrder(obj) 
                     load.close();
-                    localStorage.setItem("baojia",JSON.stringify(res))
+                    sessionStorage.setItem("baojia",JSON.stringify(res.res))
                     if(res.code == 0){
                         this.$router.push("suboffer")
                     }else{
@@ -421,7 +412,7 @@
             } 
             .el-row{
                 background: #F8F8F8;
-                padding: .08rem .1rem;
+                padding: .1rem .1rem;
                 color:#393939;
             }
             .selctype{

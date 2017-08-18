@@ -19,7 +19,7 @@
 </template>
 
 <script>
-    import {inputCheck,Cookie,changeText} from '../../components/common/common'
+    import {inputCheck,Cookie,changeText,layer} from '../../components/common/common'
     import {change_text} from "../../service/data"
     import md5 from 'js-md5'
     import {mapState, mapMutations} from 'vuex' 
@@ -46,7 +46,7 @@
             mobileLogin(){
                 inputCheck([
                     [!this.userAccount,"请输入用户名"],
-                    [!this.passWord,"密码不能为空"],
+                    // [!this.passWord,"密码不能为空"],
                     [true,"",this.loginSuc]           
                 ],this)
             },
@@ -56,12 +56,10 @@
                 if(data.code == 0){
                     Cookie.setCookie("login",JSON.stringify(user),1)
                     this.$router.push("/home");
-                    localStorage.setItem("username",data.res.username)
+                    sessionStorage.clear();
+                    sessionStorage.setItem("userInfo",JSON.stringify(data.res));
                 }else{
-                    this.$message({
-                        type:'error',
-                        message:data.code.ch
-                    })
+                   layer("error",data.ch,this)
                 }
             }
         }

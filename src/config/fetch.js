@@ -4,9 +4,9 @@ import {
 
 export default async(type = 'GET', url = '', data = {},go = 'fetch',file="") => {
 	type = type.toUpperCase();
-	url = baseUrl + url;
-
-	if (type == 'GET') {
+	if(url.indexOf("http") == -1)  url = baseUrl + url;
+	
+	if (type == 'GET'||type == 'DELETE') {
 		let dataStr = ''; //数据拼接字符串
 		Object.keys(data).forEach(key => {
 			dataStr += key + '=' + data[key] + '&';
@@ -52,10 +52,9 @@ export default async(type = 'GET', url = '', data = {},go = 'fetch',file="") => 
 			}
 
 			let sendData = data;
-			if (type == 'POST') {
+			if (type == 'POST'||type=="DELETE"||type=="PATCH"){
 				sendData = JSON.stringify(sendData);
 			}
-
 			requestObj.open(type, url, true);
 			requestObj.setRequestHeader("Content-type", "application/json");
 			requestObj.send(sendData);

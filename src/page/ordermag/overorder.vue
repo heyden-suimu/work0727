@@ -6,7 +6,7 @@
                   <span>车牌号：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
               <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>录入时间：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>投保公司：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple">
                   <span>业务员：</span><el-input class="serinput" v-model="phone"></el-input>
@@ -14,10 +14,7 @@
             </el-row>
             <el-row>
               <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>交强险到期时间：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-              <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>商业险到期时间：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>出单日期：</span><el-input class="serinput" v-model="phone"></el-input>
               </div></el-col>
             </el-row>
             <div class="serfoot">
@@ -26,7 +23,7 @@
         </div>
         <el-table
           :data="tableData"
-          style="width: 96%;margin-left:2%;"
+          style="width: 92%;margin-left:2%;"
           border
           @selection-change="handleSelectionChange">
           <el-table-column
@@ -34,30 +31,25 @@
           width="55">
           </el-table-column>
           <el-table-column
-            prop="name"
-            label="车主"
-            >
+            prop="date"
+            label="出单日期">
+          </el-table-column>
           </el-table-column>
           <el-table-column
             prop="address"
             label="车牌号"
             >
-          </el-table-column>
-          <el-table-column
-            prop="date"
-            label="交强险到期时间">
-          </el-table-column>
-          <el-table-column
-            prop="date"
-            label="商业险到期时间">
-          </el-table-column>
-          <el-table-column
-            prop="date"
-            label="录入时间">
-          </el-table-column>
+          </el-table-column>          
           <el-table-column
             prop="name"
             label="业务员">
+          </el-table-column>
+          <el-table-column
+            label="投保公司">
+            <template scope="scope">
+                {{change_text.suboffer[Source]}}
+            </template>
+          </el-table-column>    
           </el-table-column>
           <el-table-column
             width="80"
@@ -67,66 +59,88 @@
             </template>
           </el-table-column>
         </el-table>
-        <div>
+       <div>
             <el-pagination
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="currentPage4"
-              :page-sizes="[100, 200, 300, 400]"
-              :page-size="100"
+              :current-page="currentPage"
+              :page-sizes="listsizes"
+              :page-size="listsize"
               layout="total, sizes, prev, pager, next, jumper"
-              :total="400">
+              :total="totalList">
             </el-pagination>
         </div>
     </div>
 </template>
 
 <script>
-    import {inputCheck} from '../../components/common/common'
-    import {mapState, mapMutations} from 'vuex' 
+    import {inputCheck,exit} from '../../components/common/common'
+    import{change_text} from "../../service/data"
+    import {mapState, mapActions} from 'vuex' 
 
     export default {
         data(){
             return {
-               phone:"",
                currentPage4: 4,
-               tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '京QY1111'
-                  }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '京QY1111'
-                  }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '京QY1111'
-                  }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '京QY1111'
-                  }]
+               tableData:[],
+               currentPage:1,
+               listsizes:[8,12,16,20],
+               listsize:8,
+               totalList:0,
+               start:0,
+               orderList:[],
+               surelist:[],
+                change_text:change_text,
             }
         },
         created(){
-            
+            exit()
+        },
+        mounted(){
+            exit(this)
+            this.init()
         },
         components: {
             
         },
         computed: {
-            
+            ...mapState([
+                // "userinfo",
+                "orderlist"
+            ])
         },
         methods: {
+            ...mapActions([
+                "getOrderList",
+                // "getUserInfo"
+            ]),
+            async init(){
+                if(!this.$store.state.orderlist){
+                  await  this.$store.dispatch("getOrderList");
+                }
+                // if(!this.$store.state.userinfo.userId){
+                //   await  this.$store.dispatch("getUserInfo");
+                // }
+                this.surelist = this.$store.state.orderlist.filter((item)=>{
+                    return item.status >0
+                })
+                this.tableData = this.surelist.slice(this.start,this.start+this.listsize);
+                // debugger
+                this.totalList = this.surelist.length;
+                this.orderList = this.surelist;
+            },  
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
-            handleSizeChange(){
-            
+            handleSizeChange(size){
+                this.start = this.listsize*(this.currentPage-1);
+                this.listsize = size;               
+                this.tableData= this.orderList.slice(this.start,this.start+size);
             },
-            handleCurrentChange(){
-
+            handleCurrentChange(page){
+                this.start = this.listsize*(page-1);  
+                this.currentPage = page; 
+                this.tableData= this.orderList.slice(this.start,this.start+this.listsize);
             },
             handleClick(){
                 this.$router.push("orderoffer")

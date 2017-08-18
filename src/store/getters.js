@@ -13,7 +13,7 @@ export default {
 			],
 			'other':[
 				{value:state.xbInfo.HuaHen,name:"划痕险",code:"",code:"HuaHen",mianpei:!!state.xbInfo.BuJiMianHuaHen,slect_label:[2000,5000,10000,20000]},
-				{value:parseInt(state.xbInfo.BoLi),name:"玻璃单独破碎险",code:"BoLi",slect_list:["不投保","国产","进口"]},
+				{value:state.xbInfo.BoLi,name:"玻璃单独破碎险",code:"BoLi",slect_list:["不投保","国产","进口"]},
 				{value:state.xbInfo.SheShui,name:"涉水行驶损失险",code:"SheShui",mianpei:!!state.xbInfo.BuJiMianSheShui},
 				{value:state.xbInfo.ZiRan,name:"自燃损失险",code:"ZiRan",mianpei:!!state.xbInfo.BuJiMianZiRan},
 				{value:state.xbInfo.HcSanFangTeYue,name:"机动车无法找到第三方险",code:"HcSanFangTeYue"},

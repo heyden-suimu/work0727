@@ -1,8 +1,10 @@
+// 七牛url
+export let qnUrl = "http://ouv1r14wu.bkt.clouddn.com/"
 // 主页左侧菜单
 export let leftView=[
 	["车险查询",[["新增报价","addoffer"]],],
-	["订单管理",[["订单汇总","orderlist"],["预约单列表","sureorder"],["已出单列表","overorder"]]],
-	["车险查询",[["业务员注册","adduser"],["业务员管理","userlist"]]],
+	["订单管理",[["订单汇总","orderlist"],["待审核列表","sureorder"],["已出单列表","overorder"]]],
+	["账号管理",[["业务员注册","adduser"],["业务员管理","userlist"]]],
 ]
 //面包鞋
 export let breadcrum = [
@@ -221,7 +223,7 @@ export let get_suboffer = {
   "code": 0
 };
 // 证件类型
-export let idType = ["身份证","组织机构代码证","护照","军官证","港澳回乡证或台胞证","其他","港澳通行证","出生证","营业执照（社会统一信用代码）"];
+export let idType = ["身份证","组织机构代码证","护照","军官证","港澳回乡证或台胞证","其他","港澳通行证","出生证","营业执照（社会统一信用代码）","税务登记证"];
 // 基本险
 export let  basicIns = ["车辆损失险","第三者责任险","全车盗抢险","司机座位责任险","乘客座位责任险"];
 // 附加险

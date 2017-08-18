@@ -14,7 +14,8 @@ if (process.env.NODE_ENV == 'development') {
 	baseUrl = 'http://121.40.68.137:15000';
 	routerMode = 'hash'
 }else{
-	baseUrl = 'http://api.aituyou.me:8002';
+	// baseUrl = 'http://api.aituyou.me:8002';
+	baseUrl = 'http://121.40.68.137:15000';
 	routerMode = 'hash'
 }
 

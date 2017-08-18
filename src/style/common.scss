@@ -164,7 +164,7 @@ html,body{
 }
 // 加载loading
 .loading {
-    background: rgba(0,0,0,.05);
+    background: rgba(0,0,0,.1);
 }
 //订单总汇，时间input框
 .orderlist{
@@ -174,5 +174,40 @@ html,body{
     .el-dialog{
         min-height: 3rem;
         bottom:0rem;
+        overflow: scroll;
     }
+}
+// 订单提交
+.orderoffer{
+    .tabcontent{
+        background: #F8F8F8;
+        padding-bottom: .1rem;
+            .el-table{
+                margin-left: 0!important;
+            }
+        }
+}
+//编辑业务员
+.userlist{
+    div.eidtuser{
+        width: 100%;
+        position: relative;
+        height: 5.2rem;
+        .incontent{
+            padding: 0;
+            margin-top: -.2rem;
+            >div{
+                width: 96%;
+                margin-bottom: .1rem;
+                h3{
+                    font-size: 15px;
+                }
+            }
+        }
+    }
+    .el-dialog {
+            width: 70%;
+            height: auto;
+            margin: 0;
+    }  
 }

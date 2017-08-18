@@ -1,7 +1,7 @@
 <template>
     <div class="incontent">
          <div>
-            <h3>注册信息</h3>
+            <h3>{{showPart?"注册信息":"编辑用户"}}</h3>
             <el-row>
               <el-col :span="8"><div class="grid-content bg-purple">
                   <span>业务员：</span><el-input class="serinput" v-model="name"></el-input>
@@ -16,7 +16,7 @@
             </el-row>
             <el-row>
               <el-col :span="8"><div class="grid-content bg-purple-light">
-                  <span>创建登录账号：</span><el-input class="serinput" v-model="username"></el-input>
+                  <span>{{showPart?"创建登录账号：":"账号"}}</span><el-input class="serinput" v-model="username"></el-input>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purplee-light">
                   <span>登录密码：</span><el-input class="serinput" v-model="password"></el-input>
@@ -50,37 +50,40 @@
                  </div>
               </div></el-col>
               <el-col :span="4"><div class="grid-content bg-purple-light">
-                    <el-select v-model="item.submitInfo ">
+                    <el-select v-model="item.precisePrice">
                       <el-option v-for="(item_i,index_i) in sclect" :label="item_i.name" :value="item_i.value"></el-option>
                     </el-select>
               </div></el-col>
               <el-col :span="4"><div class="grid-content bg-purple-light">
-                    <el-select v-model="item.offer_prority">
+                    <el-select v-model="item.submitInfo">
                       <el-option v-for="(item_i,index_i) in sclect" :label="item_i.name" :value="item_i.value"></el-option>
                     </el-select>
               </div></el-col>
               <el-col :span="5"><div class="grid-content bg-purple-light">
-                  <el-input class="serinput" v-model="item.BizDiscount" placeholder="请输入0~0.4的数字"></el-input>
+                  <el-input class="serinput" v-model="item.BizDiscount" placeholder="请输入0~40的数字"></el-input>
               </div></el-col>
               <el-col :span="5"><div class="grid-content bg-purple-light">
-                  <el-input class="serinput" v-model="item.ForceDiscount" placeholder="请输入0~0.4的数字"></el-input>
+                  <el-input class="serinput" v-model="item.ForceDiscount" placeholder="请输入0~40的数字"></el-input>
               </div></el-col>
             </el-row>
         </div>
-        <div class="foot">
+        <div class="foot" v-if="showPart">
             <div>
                 <button v-if="true" @click="register">注册</button>
                 <button class="sub" @click="reset">重置</button>
             </div>
+        </div>
+        <div v-if="!showPart" class="foot eidt">
+            <el-button v-if="true" @click="register">保存</el-button>
         </div>    
     </div>
 </template>
 
 <script>
-    import {inputCheck,exit,layer} from '../../components/common/common'
+    import {inputCheck,exit,layer,initData} from '../../components/common/common'
     import md5 from 'js-md5'
     import {mapState, mapActions} from 'vuex' 
-    import {register} from "../../service/getData"
+    import {register,updateuser} from "../../service/getData"
     export default {
         data(){
             return {
@@ -89,9 +92,9 @@
                username:'',
                password:'',
                list:[
-               {source:0,company:"中国人保",imgsrc:require("../../images/rb.png"),submitInfo :false,offer_prority:false,BizDiscount:null,ForceDiscount:null},
-               {source:1,company:"中国平安",imgsrc:require("../../images/pa.png"),submitInfo :false,offer_prority:false,BizDiscount:null,ForceDiscount:null},
-               {source:2,company:"中国太平洋",imgsrc:require("../../images/tpy.png"),submitInfo :false,offer_prority:false,BizDiscount:null,ForceDiscount:null},
+               {source:4,company:"中国人保",imgsrc:require("../../images/rb.png"),precisePrice :false,submitInfo:false,BizDiscount:"",ForceDiscount:""},
+               {source:2,company:"中国平安",imgsrc:require("../../images/pa.png"),precisePrice :false,submitInfo:false,BizDiscount:"",ForceDiscount:""},
+               {source:1,company:"中国太平洋",imgsrc:require("../../images/tpy.png"),precisePrice :false,submitInfo:false,BizDiscount:"",ForceDiscount:""},
                ],
                count:[5,10,15,20,25,30,35,40],
                orderCount:20,
@@ -102,12 +105,10 @@
         created(){           
             
         },
+        props:{"showPart":{default:true},"user":{default:null}},
         mounted(){
             exit(this)
-            if(!this.$store.state.userinfo.userId){
-                this.$store.dispatch('getUserInfo').then(() => {
-                })
-            }         
+            this.init()         
         },
         components: {
             
@@ -122,6 +123,27 @@
                 "getUserInfo",
                 "getUserInfo1"
             ]),
+            async init(){
+                if(!this.$store.state.userinfo.userId){
+                    this.$store.dispatch('getUserInfo').then(() => {
+                    })
+                }
+                if(!this.showPart&&this.user){
+                    initData(this,this.user,["name","phoneNumber","username","orderCount"]);
+                    this.user.source.map((item)=>{
+                        let index;
+                        for(let i=0;i<3;i++){
+                            if(item.code == this.list[i].source){
+                                index = i;
+                                break;
+                            }
+                        }
+                        for(var key in item){
+                            this.list[index][key] = item[key]
+                        }
+                    })
+                }    
+            },
             reset(){
                 Object.assign(this.$data, this.$options.data())
             },
@@ -130,34 +152,43 @@
                         [!this.name,"请输入用户名"],
                         [!(/^1[3|4|5|8][0-9]\d{4,8}$/.test(this.phoneNumber)),"请输入正确的手机号码"],
                         [!this.username,"请输入账号"],
-                        [!this.password,"请输入密码"],
+                        [!this.password&&this.showPart,"请输入密码"],
                     ],this)
+                if(check == -1){
+                    return
+                }
+                debugger
                 var prams = {
                     name:this.name,
                     username:this.username,
-                    password:md5(this.password),
+                    password:this.showPart||this.password?md5(this.password):this.user.password,
                     phoneNumber:this.phoneNumber,
                     source:[
-                        {code:this.list[0].source,submitInfo:this.list[0].submitInfo,precisePrice:this.list[0].precisePrice,BizDiscount:this.list[0].BizDiscount,ForceDiscount:this.list[0].ForceDiscount},
-                        {code:this.list[1].source,submitInfo:this.list[1].submitInfo,precisePrice:this.list[1].precisePrice,BizDiscount:this.list[1].BizDiscount,ForceDiscount:this.list[1].ForceDiscount},
-                        {code:this.list[2].source,submitInfo:this.list[2].submitInfo,precisePrice:this.list[2].precisePrice,BizDiscount:this.list[2].BizDiscount,ForceDiscount:this.list[2].ForceDiscount}
+                        {code:this.list[0].source,submitInfo:this.list[0].submitInfo,precisePrice:this.list[0].precisePrice,BizDiscount:this.list[0].BizDiscount||0,ForceDiscount:this.list[0].ForceDiscount||0},
+                        {code:this.list[1].source,submitInfo:this.list[1].submitInfo,precisePrice:this.list[1].precisePrice,BizDiscount:this.list[1].BizDiscount||0,ForceDiscount:this.list[1].ForceDiscount||0},
+                        {code:this.list[2].source,submitInfo:this.list[2].submitInfo,precisePrice:this.list[2].precisePrice,BizDiscount:this.list[2].BizDiscount||0,ForceDiscount:this.list[2].ForceDiscount||0}
                     ],
                     orderCount:this.orderCount,
                     parentId:this.$store.state.userinfo.userId
                 }
-                if(check == -1){
-                    return
-                }
-                try{
+                debugger
+                if(this.showPart){
                     let data = await register(prams)
                     if(data.code == 0){
                         layer("success","注册成功",this)
-                    }else if(data.code == -102){
+                    }else{
                         layer("error",data.ch,this)
                     }
-                }catch(err){
-                     layer("error","请求数据错误",this)
-                }
+                }else{
+                    prams.userId = this.user.userId;
+                    let data = await updateuser(prams)
+                    if(data.code == 0){
+                        await layer("success","修改成功",this);
+                        this.$parent.$parent.dialogVisible = false;
+                    }else{
+                        layer("error",data.ch,this)
+                    }
+                }   
             },          
         }
     }
@@ -268,6 +299,18 @@
                 }
             }
             
+        }
+        .eidt{
+            left: 0;
+            bottom: 0;
+            height: auto;
+            background: none;
+            border: none;
+            .el-button{
+                width: 1.2rem;
+                background: #D43F3A;
+                color: white;
+            }
         }
     }
     

@@ -1,16 +1,16 @@
 <template>
-    <div class="incontent">
+    <div class="incontent orderoffer">
        <div>
             <h3>业务员信息</h3>
             <el-row>
               <el-col :span="8"><div class="grid-content bg-purple">
-                  <span>业务员姓名：</span><span>{{search_Res.LicenseNo}}</span>
+                  <span>业务员姓名：</span><span>{{salesmanName}}</span>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
-                  <span>业务员账号：</span><span>{{search_Res.RegisterDate}}</span>
+                  <span>业务员账号：</span><span>{{salesmanUsername}}</span>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
-                  <span>业务员联系方式：</span><span>{{search_Res.RegisterDate}}</span>
+                  <span>业务员联系方式：</span><span>{{salesmanPhoneNumber}}</span>
               </div></el-col>
             </el-row>
         </div>
@@ -18,50 +18,76 @@
             <h3>被保人信息</h3>
             <el-row>
               <el-col :span="8"><div class="grid-content bg-purple">
-                  <span>车主姓名：</span><el-input v-model="search_Res.LicenseOwner" class="offerinput"></el-input>
+                  <span>车主姓名：</span><el-input v-model="search_Res.UserInfo.InsuredName" class="offerinput" disabled></el-input>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
                   <span>证件类型：</span>
-                  <el-select v-model="search_Res.InsuredIdType" placeholder="">
+                  <el-select v-model="search_Res.UserInfo.InsuredIdType" placeholder="" disabled>
                     <el-option
                       v-for="(item,index) in idType"
                       :key="index"
                       :label="item"
-                      :value="index+1">
+                      :value="index">
                     </el-option>
                   </el-select>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
-                  <span>证件号码：</span><el-input v-model="search_Res.CredentislasNum" class="offerinputid"></el-input>
+                  <span>证件号码：</span><el-input v-model="search_Res.UserInfo.InsuredIdCard" class="offerinputid" disabled></el-input>
               </div></el-col>
             </el-row>
         </div>
         <div>
             <h3>投保信息</h3>
-            
+            <div class="tbinfo">
+                <el-row>
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                      <span>车牌号：</span><span>{{search_Res.UserInfo.LicenseNo}}</span>
+                  </div></el-col>
+                  <el-col :span="8"><div class="grid-content bg-purple-light">
+                      <span>品牌型号：</span><span>{{search_Res.UserInfo.LicenseNo}}</span>
+                  </div></el-col>
+                  <el-col :span="8"><div class="grid-content bg-purple-light">
+                      <span>车主姓名：</span><span>{{search_Res.UserInfo.LicenseNo}}</span>
+                  </div></el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                      <span>商业险起保日期：</span><span>{{search_Res.UserInfo.ForceStartDate}}</span>
+                  </div></el-col>
+                  <el-col :span="8"><div class="grid-content bg-purple-light">
+                      <span>交强险起保日期：</span><span>{{search_Res.UserInfo.BusinessStartDate}} </span>
+                  </div></el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                      <span>投保公司：</span><span>{{change_text.suboffer[Source]}}</span>
+                  </div></el-col>
+                </el-row>
+            </div>
+            <bj-tabel :tableData="tableData" :tableData1="tableData1"></bj-tabel>
         </div>
         <div>
             <h3>支付信息</h3>
             <el-row>
                 <el-col :span="8"><div class="grid-content bg-purple-light">
-                  <span>证件类型：</span>
-                  <el-select v-model="search_Res.InsuredIdType" placeholder="">
+                  <span>支付方式：</span>
+                  <el-select v-model="payment" placeholder="">
                     <el-option
                       v-for="(item,index) in idType1"
                       :key="index"
                       :label="item"
-                      :value="index+1">
+                      :value="index">
                     </el-option>
                   </el-select>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
-                  <span>证件类型：</span>
-                  <el-select v-model="search_Res.InsuredIdType" placeholder="">
+                  <span>支付状态：</span>
+                  <el-select v-model="payStatus" placeholder="">
                     <el-option
                       v-for="(item,index) in idType2"
                       :key="index"
                       :label="item"
-                      :value="index+1">
+                      :value="index">
                     </el-option>
                   </el-select>
               </div></el-col>
@@ -72,22 +98,27 @@
             <el-row>
                 <el-col :span="8"><div class="grid-content bg-purple-light">
                   <span>配送方式：</span>
-                  <el-select v-model="search_Res.InsuredIdType" placeholder="">
+                  <el-select v-model="distribution" placeholder="">
                     <el-option
                       v-for="(item,index) in idType3"
                       :key="index"
                       :label="item"
-                      :value="index+1">
+                      :value="index">
                     </el-option>
                   </el-select>
               </div></el-col>
             </el-row>
             <el-row>
               <el-col :span="10"><div class="grid-content bg-purple">
-                  <span>业务员姓名：</span><el-input v-model="search_Res.InsuredMobile" class="offerinput"></el-input>
+                  <span>收单人姓名：</span><el-input v-model="recipientsName" class="offerinput"></el-input>
               </div></el-col>
               <el-col :span="10"><div class="grid-content bg-purple-light">
-                  <span>业务员账号：</span><el-input v-model="search_Res.InsuredMobile" class="offerinput"></el-input>
+                  <span>收单人电话：</span><el-input v-model="recipientsPhone" class="offerinput"></el-input>
+              </div></el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="10"><div class="grid-content bg-purple">
+                  <span>配送地址：</span><el-input v-model="address" class="address"></el-input>
               </div></el-col>
             </el-row>
         </div>
@@ -95,9 +126,11 @@
             <h3>上传影像</h3>
             <div class="upload">
                 <el-upload
-                  action="https://jsonplaceholder.typicode.com/posts/"
+                  action="http://up-z2.qiniu.com/"
                   list-type="picture-card"
-                  :on-preview="handlePictureCardPreview"
+                  :data="uploddata"
+                  :before-upload="setToken"
+                  :on-success="handlePictureCardPreview"
                   :on-remove="handleRemove">
                   <i class="el-icon-plus"></i>
                 </el-upload>
@@ -108,17 +141,22 @@
         </div>
         <div class="foot">
             <div>
-                <button  @click="submit">提交</button>
+                <button  @click="submit()">提交</button>
+                <button  @click="submit(3)">通过审核</button>
+                <button  @click="submit(4)">未通过审核</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import{get_suboffer,search_res,idType} from "../../service/data"
+    import{get_suboffer,search_res,idType,change_text,qnUrl} from "../../service/data"
+    import {exit,layer,initData,inputCheck} from '../../components/common/common'
     import {mapState, mapMutations} from 'vuex' 
+    import bjTabel from '../../components/common/baojiaTabel'
+    import {getOrder,patchOrder,getToken} from "../../service/getData"
     export default {
-        data(){
+         data(){
             return {
                 search_Res:search_res,
                 idType:idType,
@@ -126,29 +164,96 @@
                 idType2:["未支付","已支付"],
                 idType3:["快递配送","自领"],
                 dialogImageUrl: '',
-                dialogVisible: false
+                dialogVisible: false,
+                tableData:[],
+                tableData1:[],
+                payment:0,
+                payStatus:0,
+                distribution:0,
+                address:"",
+                recipientsPhone:"",
+                recipientsName:"",
+                change_text:change_text,
+                Source:null,
+                salesmanUsername:"",
+                salesmanPhoneNumber:"",
+                salesmanName:"",
+                uploddata:"",
+                imgList:[]
             }
         },
         created(){
-            
+            exit(this);
+          this.init(); 
         },
         components: {
-
+            bjTabel
         },
         computed: {
             
         },
         methods: {
-              handleRemove(file, fileList) {
+            async init(){
+                if(!sessionStorage.getItem("baojia")){
+                    layer("warning","请先报价",this)
+                    this.$router.go(-1);
+                    return;
+                }
+                if(!sessionStorage.tableData||!sessionStorage.tableData1||!sessionStorage.Source){
+                    layer("warning","请预约出单",this)
+                    this.$router.push("suboffer");
+                    return;
+                }
+                this.search_Res = JSON.parse(sessionStorage.getItem("baojia"));
+                let data = await getOrder({orderId:this.search_Res.order.orderId});
+                if(data.code == 0){
+                    let res = data.res;
+                    let arr = ["payment","payStatus","payStatus","distribution","recipientsName","recipientsPhone","salesmanUsername","salesmanPhoneNumber","salesmanName","address"]
+                    initData(this,res,arr);
+                    this.dialogImageUrl = res.photos;
+                }
+                this.tableData = JSON.parse(sessionStorage.tableData);
+                this.tableData1 = JSON.parse(sessionStorage.tableData1);
+                this.Source = sessionStorage.Source;
+            },
+            handleRemove(file, fileList) {
                 console.log(file, fileList);
-              },
-              handlePictureCardPreview(file) {
-                this.dialogImageUrl = file.url;
-                this.dialogVisible = true;
-              },
-              submit(){
+            },
+            handlePictureCardPreview(res,file) {
+                this.dialogImageUrl = qnUrl+res.hash;
+                this.imgList.push(this.dialogImageUrl)
+                // this.dialogVisible = true;
+            },
+            async submit(index=2){
+                let check = inputCheck([
+                    [!this.recipientsName,"请填写收件人姓名"],
+                    [!this.recipientsPhone,"请填写收件人电话"],
+                    [!this.address,"请填写收件人地址"],
+                    ],this)
+                if(check == -1){
+                    return;
+                }
+                let arr = ["payment","payStatus","distribution","recipientsName","recipientsPhone","address"]
+                let obj = {
+                    orderId:this.search_Res.order.orderId,
+                    approvalStatus:String(index),
+                    photos:this.imgList,
+                }
+                let  data = await patchOrder(obj);
+                if(data.code == 0){
+                    layer("success","提交成功",this);
 
-              }
+                    this.$router.push("sureorder");
+                }else{
+                    layer("error",data.res.ch,this);
+                }
+            },
+            async setToken(){
+                let data = await getToken();
+                this.uploddata = {
+                    token:data.res
+                }
+            },
         }
     }
 
@@ -169,6 +274,9 @@
         padding-bottom: .6rem;
         .offerinput{
             max-width: 1.6rem;
+        }
+        .address{
+            max-width: 3rem;
         }
         .offerinputid{
             max-width: 2.6rem;
@@ -192,6 +300,13 @@
             .upload{
                 padding: .2rem 0 .2rem .4rem;
                 border: 1px solid #CCC;
+            }
+            .tbinfo{
+                .el-row{
+                    padding: .1rem .1rem;
+                }
+                padding-bottom: .15rem;
+                background: #F8F8F8;
             }
         }
         .foot{

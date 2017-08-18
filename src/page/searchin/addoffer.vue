@@ -41,11 +41,11 @@
             }
         },
         created(){
-            exit(this)
-            this.init()
+
         },
         mounted(){
-            
+            exit(this);
+            this.init();
         },
         components:{
    
@@ -99,13 +99,13 @@
                 let pram ={
                     LicenseNo:list[0].provinceShort+this.LicenseNo,
                     CityCode:this.CityCode,
-                    username:this.$store.state.userinfo.username,
+                    username:JSON.parse(sessionStorage.getItem("userInfo")).username,
                 }
                 let load = this.$loading({body:true,text:"加载中...",customClass:"loading"})
                 let data = await getxbInfo(pram);
                 load.close();
                 if(data.code == 0){
-                    localStorage.setItem("xbpram",JSON.stringify(pram));
+                    sessionStorage.setItem("xbpram",JSON.stringify(data.res));
                     this.$router.push("newoffer");          
                 }else{
                     layer("error","未获取到续保信息",this)

@@ -1,13 +1,13 @@
 <template>
-    <div class="incontent">
+    <div class="incontent userlist">
          <div class="search">
             <el-row>
+              <el-col :span="7"><div class="grid-content bg-purple-light">
+                  <span>业务员：</span><el-input class="serinput" v-model="name"></el-input>
+              </div></el-col>
               <el-col :span="6"><div class="grid-content bg-purple">
                   <span>手机号：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
-              <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>业务员姓名：</span><el-input class="serinput" v-model="phone"></el-input>
-              </div></el-col>
+              </div></el-col>             
             </el-row>
             <div class="serfoot">
                 <el-button>搜索</el-button> 
@@ -20,39 +20,38 @@
           @selection-change="handleSelectionChange">
           <el-table-column
           type="selection"
-          width="55">
-          </el-table-column>
-          <el-table-column
-            prop="date"
-            label="ID"
-            width="180">
+          width="45">
           </el-table-column>
           <el-table-column
             prop="name"
             label="业务员"
-            width="180">
+            width="160">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="phoneNumber"
             label="手机号">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="username"
             label="账号">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="parentName"
+            show-overflow-tooltip
             label="上级单位">
           </el-table-column>
           <el-table-column
-            prop="address"
             label="注册日期">
+            <template scope="scope">
+                {{new Date(scope.row.create_time).toLocaleDateString()}}
+            </template>
           </el-table-column>
           <el-table-column
             label="操作">
               <template scope="scope">
                 <div>
-                    <el-button type="text" size="small">禁用</el-button>
+                    <el-button type="text" size="small" @click="available(scope.row)">{{scope.row.available?"禁用":"启用"}}</el-button>
+                    <el-button type="text" size="small" @click="edit(scope.row)">编辑</el-button>
                 </div>
             </template>
           </el-table-column>
@@ -61,77 +60,126 @@
             <el-pagination
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="currentPage4"
-              :page-sizes="[100, 200, 300, 400]"
-              :page-size="100"
+              :current-page="currentPage"
+              :page-sizes="listsizes"
+              :page-size="listsize"
               layout="total, sizes, prev, pager, next, jumper"
-              :total="400">
+              :total="totalList">
             </el-pagination>
         </div>
+        <el-dialog
+            :visible.sync="dialogVisible"
+            title="业务员管理"
+            top="9%"
+            >
+            <div class="eidtuser">
+                <eidt-user :showPart="false" :user="user"></eidt-user>
+            </div>          
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import {inputCheck,layer,exit} from '../../components/common/common'
     import {mapState, mapActions} from 'vuex' 
-    import {next_userlist} from "../../service/getData"
+    import {next_userlist,getsuperior,updateuser} from "../../service/getData"
+    import eidtUser from "./adduser"
     export default {
         data(){
             return {
-               phone:"",
-               currentPage4: 4,
-               tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                  }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                  }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                  }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                  }]
+                name:"",
+                phone:"",
+                currentPage4: 4,
+                tableData:[],
+                currentPage:1,
+                listsizes:[8,12,16,20],
+                listsize:8,
+                totalList:0,
+                start:0,
+                orderList:[],
+                surelist:[],
+                dialogVisible:false,
+                user:null,
             }
         },
         created(){
-            exit();
+            exit(this);
+            this.init()
+        },
+        mounted(){
+            exit(this)
             this.init()
         },
         components: {
-            
+            eidtUser
         },
         computed: {
             ...mapState([
-                'userinfo',
+                "userinfo",
+                "orderlist"
             ])
         },
         methods: {
-             ...mapActions([
+            ...mapActions([
+                "getOrderList",
                 "getUserInfo"
             ]),
+            async init(){
+                if(!sessionStorage.userInfo){
+                  await  this.$store.dispatch("getUserInfo");
+                  sessionStorage.userInfo = JSON.stringify(this.$store.state.userinfo);
+                }
+                if(!this.$store.state.userlist){
+                    let obj = {
+                        userId:JSON.parse(sessionStorage.userInfo).userId
+                    };
+                    let data = await getsuperior(obj);
+                    if(data.code ==0 ){
+                        this.$store.state.userlist = data.res
+                    }
+                }                               
+                this.surelist = this.$store.state.userlist;
+                this.tableData = this.surelist.slice(this.start,this.start+this.listsize);
+                // debugger
+                this.totalList = this.surelist.length;
+                this.orderList = this.surelist;
+            },  
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
-            async init(){       
-                try{
-                    let data = await next_userlist(this.$store.state.userinfo.userId);
-                    console.log(data)
-                }catch(err){
-                    console.log(err)
-                    layer("error","请求参数错误",this)
-                }                      
+            handleSizeChange(size){
+                this.start = this.listsize*(this.currentPage-1);
+                this.listsize = size;               
+                this.tableData= this.orderList.slice(this.start,this.start+size);
             },
-            handleSizeChange(){
-
+            handleCurrentChange(page){
+                this.start = this.listsize*(page-1);  
+                this.currentPage = page; 
+                this.tableData= this.orderList.slice(this.start,this.start+this.listsize);
             },
-            handleCurrentChange(){
-
+            available(row){
+                let message = row.available?"禁用":"启用";
+                this.$msgbox({
+                    title:"提示",
+                    message:"是否"+message+"改账号？",
+                    showCancelButton:true,
+                }).then(()=>{ 
+                    updateuser({userId:row.userId,available:!row.available}).then((data)=>{
+                        if(data.code == 0 ){
+                            row.available = !row.available
+                            layer("success","已"+message,this);
+                        }else{
+                            layer("success",data.ch,this);
+                        }
+                    })
+                    
+                }).catch(()=>{
+                        
+                })
+            },
+            edit(row){
+                this.user = row;
+                this.dialogVisible=true;       
             }
         }
     }
@@ -187,7 +235,8 @@
         .el-pagination{
             text-align: center;
             margin-top: .5rem;
-        }  
+        }
+        
     }
     
 </style>

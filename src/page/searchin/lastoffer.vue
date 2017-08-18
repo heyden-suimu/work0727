@@ -48,7 +48,7 @@
 <script>
     import {mapState, mapActions,} from 'vuex'
     import {exit,layer,analyzeTabel} from '../../components/common/common' 
-    import{search_res,instype,get_suboffer} from "../../service/data"
+    import{search_res,instype,get_suboffer,change_text} from "../../service/data"
     export default {
         data(){
             return {
@@ -58,7 +58,7 @@
             }
         },
         created(){
-            exit();  
+            exit(this);  
             this.init()
                   
         },
@@ -77,10 +77,12 @@
                 "getXbInfo"
             ]),
            async init(){
-             if(!this.$store.state.xbInfo.LicenseNo){
-                  await this.$store.dispatch("getXbInfo")
-              }
-              this.search_Res = this.$store.state.xbInfo;
+             if(!sessionStorage.getItem("xbpram")){
+                    layer("warning","请查询",this)
+                    this.$router.push("addoffer")
+                    return
+                }
+              this.search_Res = JSON.parse(sessionStorage.getItem("xbpram"));
               this.fliterBaoe();
             },
             lastsub(){
@@ -93,7 +95,7 @@
                 return item["BaoE"]>0
             },
             fliterBaoe(){
-                let arr = analyzeTabel(instype,get_suboffer.res.Items[0],["chinese","BaoE","BaoFei"],this.getfilter);
+                let arr = analyzeTabel(instype,this.search_Res,["chinese","BaoE"],this.getfilter);
                 arr.map((item,index)=>{
                     if(item.chinese == instype.BoLi){
                         item.BaoE = change_text.BoLi[item.BaoE]

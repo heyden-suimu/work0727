@@ -5,7 +5,7 @@
       <div class="user">
         <el-dropdown trigger="click" @command="exit">
           <span class="el-dropdown-link">
-            我的工作台<i class="el-icon-caret-bottom el-icon--right"></i>
+            {{username}}<i class="el-icon-caret-bottom el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown" class="exit">
             <el-dropdown-item command="a">退出</el-dropdown-item>
@@ -22,8 +22,10 @@
     import {breadcrum} from "../../service/data"
     export default {
     	data(){
+            let username = JSON.parse(sessionStorage.getItem("userInfo")).username;
             return{
-                bread_list:""
+                bread_list:"",
+                username,
             }
         },
         created(){
@@ -49,7 +51,9 @@
             // 退出登录
             exit(a){
                 Cookie.clearCookie("login")
-                this.$router.push("/login")
+                sessionStorage.clear();
+                this.$router.push("/login");
+                this.$store.state.userlist = null;
             },
             // 获取面包屑信息
             getbread(){
