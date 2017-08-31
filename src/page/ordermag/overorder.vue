@@ -3,26 +3,35 @@
          <div class="search">
             <el-row>
               <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>车牌号：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>车牌号：</span><el-input class="serinput" v-model="LicenseNo" @change="search"></el-input>
               </div></el-col>
               <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>投保公司：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>投保公司：</span><el-input class="serinput" v-model="Source" @change="search"></el-input>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple">
-                  <span>业务员：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>业务员：</span><el-input class="serinput" v-model="salesmanName" @change="search"></el-input>
               </div></el-col>
             </el-row>
             <el-row>
               <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>出单日期：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>出单日期：</span>
+                <el-date-picker
+                  v-model="create_time  "
+                  type="daterange"
+                  placeholder="选择日期范围"
+                  style="width:1.8rem"
+                  format="yyyy-MM-dd"
+                  @change="search">
+                </el-date-picker>
               </div></el-col>
             </el-row>
             <div class="serfoot">
-                <el-button>搜索</el-button> 
+                <el-button @click="search">搜索</el-button> 
             </div>
         </div>
         <el-table
           :data="tableData"
+          v-loading="loading"
           style="width: 92%;margin-left:2%;"
           border
           @selection-change="handleSelectionChange">
@@ -31,23 +40,23 @@
           width="55">
           </el-table-column>
           <el-table-column
-            prop="date"
+            prop="order.time"
             label="出单日期">
           </el-table-column>
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="order.LicenseNo"
             label="车牌号"
             >
           </el-table-column>          
           <el-table-column
-            prop="name"
+            prop="order.salesmanName"
             label="业务员">
           </el-table-column>
           <el-table-column
             label="投保公司">
             <template scope="scope">
-                {{change_text.suboffer[Source]}}
+                {{scope.row.order.Source&&change_text.suboffer[scope.row.order.Source]}}
             </template>
           </el-table-column>    
           </el-table-column>
@@ -55,7 +64,7 @@
             width="80"
             label="详情"
             ><template scope="scope">
-                <el-button @click="handleClick" type="text" size="small">详情</el-button>
+                <el-button @click="handleClick(scope.row)" type="text" size="small">详情</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -74,23 +83,28 @@
 </template>
 
 <script>
-    import {inputCheck,exit} from '../../components/common/common'
+    import {inputCheck,exit,fliterBaoe,analyzeTabel,serachInput} from '../../components/common/common'
     import{change_text} from "../../service/data"
     import {mapState, mapActions} from 'vuex' 
 
     export default {
         data(){
             return {
-               currentPage4: 4,
-               tableData:[],
-               currentPage:1,
-               listsizes:[8,12,16,20],
-               listsize:8,
-               totalList:0,
-               start:0,
-               orderList:[],
-               surelist:[],
+                currentPage4: 4,
+                tableData:[],
+                currentPage:1,
+                listsizes:[8,12,16,20],
+                listsize:8,
+                totalList:0,
+                start:0,
+                orderList:[],
+                surelist:[],
                 change_text:change_text,
+                loading:false,
+                LicenseNo:"",
+                Source:"",
+                salesmanName:"",
+                create_time:""
             }
         },
         created(){
@@ -115,14 +129,16 @@
                 // "getUserInfo"
             ]),
             async init(){
-                if(!this.$store.state.orderlist){
+                // if(!this.$store.state.orderlist){
+                  this.loading = true;
                   await  this.$store.dispatch("getOrderList");
-                }
+                  this.loading =false;
+                // }
                 // if(!this.$store.state.userinfo.userId){
                 //   await  this.$store.dispatch("getUserInfo");
                 // }
                 this.surelist = this.$store.state.orderlist.filter((item)=>{
-                    return item.status >0
+                    return item.order&&item.order.approvalStatus == 3
                 })
                 this.tableData = this.surelist.slice(this.start,this.start+this.listsize);
                 // debugger
@@ -142,9 +158,38 @@
                 this.currentPage = page; 
                 this.tableData= this.orderList.slice(this.start,this.start+this.listsize);
             },
-            handleClick(){
-                this.$router.push("orderoffer")
-            }
+            handleClick(row){
+                row.priceSession.recordId = row._id;
+                row.priceSession.order = row.order;
+               // row.priceSession.UserInfo = Object.assign(row.priceSession.UserInfo,row.reinfo)
+                row.priceSession.UserInfo.ModleName = row.reinfo.ModleName;
+                row.priceSession.UserInfo.LicenseOwner = row.reinfo.LicenseOwner;
+                row.priceSession.UserInfo.LicenseNo = row.reinfo.LicenseNo;
+                
+                sessionStorage.setItem("baojia",JSON.stringify(row.priceSession));
+                var tableItem = row.priceSession.Items.filter((item)=>{
+                    return item.Source == row.order.Source
+                })
+                if(!tableItem[0]) return;
+                tableItem = tableItem[0] 
+                let tableData1 = analyzeTabel(change_text.alltype,tableItem,["chinese","allfei"]);
+                let tableData = fliterBaoe(tableItem);
+                sessionStorage.setItem("Source",row.order.Source);
+                sessionStorage.setItem("tableData1",JSON.stringify(tableData1));
+                sessionStorage.setItem("tableData",JSON.stringify(tableData));
+                this.$router.push("orderoffer?type=read");
+            },
+            search(){
+                this.searchorder = this.surelist;
+                this.tableData = serachInput({
+                    LicenseNo:this.LicenseNo,
+                    salesmanName:{name:"order",value:this.salesmanName,type:"text"},
+                    time:{name:"order",value:this.create_time,type:"datetimerange"},
+                    Source:{name:"order",value:this.Source,type:"changetext"},
+                },this.searchorder)
+                this.orderList = this.tableData;
+                this.totalList = this.tableData.length;
+            },
             
         }
     }

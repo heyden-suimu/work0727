@@ -30,7 +30,6 @@
         },
         created(){
             //获取用户信息
-            this.$parent.$on("getbread",this.getbread)
         },
         mounted(){
             this.getbread();
@@ -56,8 +55,7 @@
                 this.$store.state.userlist = null;
             },
             // 获取面包屑信息
-            getbread(){
-                
+            getbread(){               
                 let bread = breadcrum.filter((item)=>{
                     return item.hasOwnProperty(this.$route.name)
                 })
@@ -66,6 +64,9 @@
                // console.log(this.bread_list)
             }
         },
+        watch:{
+            "$route":"getbread"
+        }
 
     }
 

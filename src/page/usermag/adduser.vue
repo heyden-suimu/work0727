@@ -19,7 +19,7 @@
                   <span>{{showPart?"创建登录账号：":"账号"}}</span><el-input class="serinput" v-model="username"></el-input>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purplee-light">
-                  <span>登录密码：</span><el-input class="serinput" v-model="password"></el-input>
+                  <span>登录密码：</span><el-input class="serinput" v-model="password" :placeholder="passholder"></el-input>
               </div></el-col>             
             </el-row>
         </div>
@@ -91,10 +91,11 @@
                phoneNumber:'',
                username:'',
                password:'',
+               passholder:"",
                list:[
-               {source:4,company:"中国人保",imgsrc:require("../../images/rb.png"),precisePrice :false,submitInfo:false,BizDiscount:"",ForceDiscount:""},
-               {source:2,company:"中国平安",imgsrc:require("../../images/pa.png"),precisePrice :false,submitInfo:false,BizDiscount:"",ForceDiscount:""},
-               {source:1,company:"中国太平洋",imgsrc:require("../../images/tpy.png"),precisePrice :false,submitInfo:false,BizDiscount:"",ForceDiscount:""},
+               {source:4,company:"中国人保",imgsrc:require("../../images/rb.png"),precisePrice :true,submitInfo:true,BizDiscount:"",ForceDiscount:""},
+               {source:2,company:"中国平安",imgsrc:require("../../images/pa.png"),precisePrice :true,submitInfo:true,BizDiscount:"",ForceDiscount:""},
+               {source:1,company:"中国太平洋",imgsrc:require("../../images/tpy.png"),precisePrice :true,submitInfo:true,BizDiscount:"",ForceDiscount:""},
                ],
                count:[5,10,15,20,25,30,35,40],
                orderCount:20,
@@ -121,15 +122,95 @@
         methods: {
             ...mapActions([
                 "getUserInfo",
-                "getUserInfo1"
             ]),
             async init(){
-                if(!this.$store.state.userinfo.userId){
+                if(!sessionStorage.userInfo){
                     this.$store.dispatch('getUserInfo').then(() => {
+
                     })
                 }
-                if(!this.showPart&&this.user){
+                this.init_user();
+                this.$watch("user",function(){
+                   this.init_user()
+                })
+                this.$store.state.userinfo = JSON.parse(sessionStorage.userInfo);
+                    
+            },
+            reset(){
+                Object.assign(this.$data, this.$options.data())
+            },
+            async register(){
+                let check =  inputCheck([
+                        [this.$store.state.userinfo.level>2,"权限不足，无法注册用户"],
+                        [!this.name,"请输入用户名"],
+                        [!(/^1[3|4|5|8][0-9]\d{4,8}$/.test(this.phoneNumber)),"请输入正确的手机号码"],
+                        [!this.username,"请输入账号"],
+                        [!this.password&&this.showPart,"请输入密码"],
+                    ],this)
+                if(check == -1){
+                    return
+                }
+                for(var i=0;i<this.list.length;i++){
+                    this.list[i].BizDiscount = Number(this.list[i].BizDiscount);
+                    this.list[i].ForceDiscount = Number(this.list[i].ForceDiscount);
+                    if(isNaN(this.list[i].BizDiscount)||isNaN(this.list[i].ForceDiscount)){
+                        layer("error","优惠上限输入格式错误",this)
+                        return
+                    }
+                    if((this.list[i].BizDiscount&&(this.list[i].BizDiscount<0||this.list[i].BizDiscount>40))||(this.list[i].ForceDiscount&&(this.list[i].ForceDiscount<0||this.list[i].ForceDiscount>40))){
+                        layer("error","优惠上限在0~40之间",this)
+                        return;
+                    }
+                }
+                var prams = {
+                    name:this.name,
+                    username:this.username,
+                    password:(this.showPart||this.password)?md5(this.password):this.user.password,
+                    phoneNumber:this.phoneNumber,
+                    source:[
+                        {code:this.list[0].source,submitInfo:this.list[0].submitInfo,precisePrice:this.list[0].precisePrice,BizDiscount:this.list[0].BizDiscount||0,ForceDiscount:this.list[0].ForceDiscount||0},
+                        {code:this.list[1].source,submitInfo:this.list[1].submitInfo,precisePrice:this.list[1].precisePrice,BizDiscount:this.list[1].BizDiscount||0,ForceDiscount:this.list[1].ForceDiscount||0},
+                        {code:this.list[2].source,submitInfo:this.list[2].submitInfo,precisePrice:this.list[2].precisePrice,BizDiscount:this.list[2].BizDiscount||0,ForceDiscount:this.list[2].ForceDiscount||0}
+                    ],
+                    orderCount:this.orderCount,
+                    parentId:this.$store.state.userinfo.userId
+                }
+                if(this.user){
+                    this.user.name  = this.name;
+                    this.user.username  = this.username;
+                    this.user.phoneNumber  = this.phoneNumber;
+                    this.user.orderCount = this.orderCount;
+                    this.user.source = prams.source;
+                }
+                if(this.showPart){
+                    let data = await register(prams)
+                    if(data.code == 0){
+                        if(this.$store.state.userlist){
+                            data.res.parentName = this.$store.state.userinfo.name;
+                            this.$store.state.userlist.push(data.res);
+                        }
+                        layer("success","注册成功",this)
+                        this.$router.push("userlist")
+                    }else{
+                        layer("error",data.ch,this)
+                    }
+                }else{
+                    prams.userId = this.user.userId;
+                    let data = await updateuser(prams)
+                    if(data.code == 0){
+                        await layer("success","修改成功",this);
+                        this.$parent.$parent.tableData.splice(this.$parent.$parent.index,1,this.user);
+                        this.$parent.$parent.dialogVisible = false;
+                    }else{
+                        layer("error",data.ch,this)
+                    }
+                }   
+            },
+            init_user(){
+                 if(!this.showPart&&this.user){
                     initData(this,this.user,["name","phoneNumber","username","orderCount"]);
+                    this.password = "";
+                    this.passholder = "默认为原始密码";
                     this.user.source.map((item)=>{
                         let index;
                         for(let i=0;i<3;i++){
@@ -142,55 +223,9 @@
                             this.list[index][key] = item[key]
                         }
                     })
-                }    
-            },
-            reset(){
-                Object.assign(this.$data, this.$options.data())
-            },
-            async register(){
-                let check =  inputCheck([
-                        [!this.name,"请输入用户名"],
-                        [!(/^1[3|4|5|8][0-9]\d{4,8}$/.test(this.phoneNumber)),"请输入正确的手机号码"],
-                        [!this.username,"请输入账号"],
-                        [!this.password&&this.showPart,"请输入密码"],
-                    ],this)
-                if(check == -1){
-                    return
                 }
-                debugger
-                var prams = {
-                    name:this.name,
-                    username:this.username,
-                    password:this.showPart||this.password?md5(this.password):this.user.password,
-                    phoneNumber:this.phoneNumber,
-                    source:[
-                        {code:this.list[0].source,submitInfo:this.list[0].submitInfo,precisePrice:this.list[0].precisePrice,BizDiscount:this.list[0].BizDiscount||0,ForceDiscount:this.list[0].ForceDiscount||0},
-                        {code:this.list[1].source,submitInfo:this.list[1].submitInfo,precisePrice:this.list[1].precisePrice,BizDiscount:this.list[1].BizDiscount||0,ForceDiscount:this.list[1].ForceDiscount||0},
-                        {code:this.list[2].source,submitInfo:this.list[2].submitInfo,precisePrice:this.list[2].precisePrice,BizDiscount:this.list[2].BizDiscount||0,ForceDiscount:this.list[2].ForceDiscount||0}
-                    ],
-                    orderCount:this.orderCount,
-                    parentId:this.$store.state.userinfo.userId
-                }
-                debugger
-                if(this.showPart){
-                    let data = await register(prams)
-                    if(data.code == 0){
-                        layer("success","注册成功",this)
-                    }else{
-                        layer("error",data.ch,this)
-                    }
-                }else{
-                    prams.userId = this.user.userId;
-                    let data = await updateuser(prams)
-                    if(data.code == 0){
-                        await layer("success","修改成功",this);
-                        this.$parent.$parent.dialogVisible = false;
-                    }else{
-                        layer("error",data.ch,this)
-                    }
-                }   
-            },          
-        }
+            }                   
+        },
     }
 
 </script>

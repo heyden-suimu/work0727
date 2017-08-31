@@ -36,8 +36,7 @@
                 this.$router.push(path);
                 // if(path!="verlist"){
                 //     this.$parent.$emit("addVer");
-                // } 
-                this.$parent.$emit("getbread")                 
+                // }             
             },
         },
 

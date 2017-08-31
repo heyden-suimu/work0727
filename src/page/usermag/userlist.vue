@@ -3,14 +3,14 @@
          <div class="search">
             <el-row>
               <el-col :span="7"><div class="grid-content bg-purple-light">
-                  <span>业务员：</span><el-input class="serinput" v-model="name"></el-input>
+                  <span>业务员：</span><el-input class="serinput" v-model="name" @change="search"></el-input>
               </div></el-col>
               <el-col :span="6"><div class="grid-content bg-purple">
-                  <span>手机号：</span><el-input class="serinput" v-model="phone"></el-input>
+                  <span>手机号：</span><el-input class="serinput" v-model="phoneNumber" @change="search"></el-input>
               </div></el-col>             
             </el-row>
             <div class="serfoot">
-                <el-button>搜索</el-button> 
+                <el-button @click="search">搜索</el-button> 
             </div>
         </div>
         <el-table
@@ -51,7 +51,7 @@
               <template scope="scope">
                 <div>
                     <el-button type="text" size="small" @click="available(scope.row)">{{scope.row.available?"禁用":"启用"}}</el-button>
-                    <el-button type="text" size="small" @click="edit(scope.row)">编辑</el-button>
+                    <el-button type="text" size="small" @click="edit(scope.row,scope.$index)">编辑</el-button>
                 </div>
             </template>
           </el-table-column>
@@ -69,6 +69,7 @@
         </div>
         <el-dialog
             :visible.sync="dialogVisible"
+            @close="inituser"
             title="业务员管理"
             top="9%"
             >
@@ -80,7 +81,7 @@
 </template>
 
 <script>
-    import {inputCheck,layer,exit} from '../../components/common/common'
+    import {inputCheck,layer,exit,serachInput} from '../../components/common/common'
     import {mapState, mapActions} from 'vuex' 
     import {next_userlist,getsuperior,updateuser} from "../../service/getData"
     import eidtUser from "./adduser"
@@ -88,7 +89,7 @@
         data(){
             return {
                 name:"",
-                phone:"",
+                phoneNumber:"",
                 currentPage4: 4,
                 tableData:[],
                 currentPage:1,
@@ -177,9 +178,23 @@
                         
                 })
             },
-            edit(row){
+            edit(row,index){
                 this.user = row;
-                this.dialogVisible=true;       
+                this.dialogVisible=true;
+                this.index = index;   
+            },
+            search(){
+                this.searchlist = this.surelist;
+                this.tableData = serachInput({
+                    name:this.name,
+                    phoneNumber:this.phoneNumber
+                },this.searchlist)
+                this.totalList = this.tableData.length;
+                this.orderList = this.tableData;
+            },
+            inituser(){
+                this.user = null;
+                this.index = null; 
             }
         }
     }

@@ -14,7 +14,7 @@
             </el-row>
             <el-row>
               <el-col :span="8"><div class="grid-content bg-purple">
-                  <span>上一年投保公司：</span><span>{{search_Res.ModleName}}</span>
+                  <span>上一年投保公司：</span><span>{{change_text.suboffer[search_Res.Source]}}</span>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
                   <span>商业险到期时间：</span><span>{{search_Res.BusinessExpireDate}} </span>
@@ -53,6 +53,7 @@
         data(){
             return {
                 search_Res:'',
+                change_text:change_text,
                 tableData:[                   
                 ],
             }

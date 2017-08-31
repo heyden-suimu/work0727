@@ -3,7 +3,7 @@
        <ul class="tab">
            <li v-for="(item,index) in Items" :class="{'active':index==ischecked,'tpy':item.Source==1,'pa':item.Source==2,'rb':item.Source==4}" @click="check(index)">
                <div>
-                   <p><span>{{change_text.suboffer[item.Source]}}</span><span style="color:red;margin-left:.13rem;">{{item.QuoteStatus>0?Number(item.BizTotal+item.ForceTotal+item.TaxTotal).toFixed(2)+'元':"报价失败"}}</span></p><!-- {{item.Source}}{{item.QuoteStatus}} -->
+                   <p><span>{{change_text.suboffer[item.Source]}}</span><span style="color:red;margin-left:.13rem;">{{item.QuoteStatus>0?Number(item.BizTotal+item.ForceTotal+item.TaxTotal).toFixed(2)+'元':"报价失败"}}</span></p>
                     <p style="color:red">{{SubmitResult[item.Source]}}</p>
                </div>
            </li>
@@ -18,10 +18,10 @@
                   <el-row><span>保险公司</span><el-select v-model="companytype" @change="getprice">
                       <el-col><el-option v-for="(item,index) in Items" :key="index"  :value="item.Source" :label="change_text.suboffer[item.Source]"></el-option></el-col>
                   </el-select></el-row>
-                  <div><span>交强险优惠</span><el-select v-model="BizNoRate" placeholder="选择或输入费率"  @change="getprice">
+                  <div><span>交强险优惠</span><el-select v-model="ForceNoRate" placeholder="选择或输入费率"  @change="getprice">
                       <el-option v-for="(item,index) in jqItems" :key="index"  :value="item"></el-option>
                   </el-select></div>
-                  <div><span>商业险优惠</span><el-select  v-model="ForceNoRate"  @change="getprice">
+                  <div><span>商业险优惠</span><el-select  v-model="BizNoRate"  @change="getprice">
                       <el-option v-for="(item,index) in syItems" :key="index"  :value="item"></el-option>
                   </el-select>
                   <el-checkbox v-model="vatRate"  @change="getprice">去增值税税点</el-checkbox></div>
@@ -33,7 +33,7 @@
               </div>
         </el-dialog>
        <div class="foot"> 
-            <button v-if="true" @click="reheibao">核保结果刷新</button>
+            <button  @click="reheibao(true)">核保结果刷新</button>
             <button  @click="reoffer">重新报价</button>
             <button  @click="calculator">车险计算器</button>
             <button  @click="orderoffer">预约出单</button>
@@ -43,10 +43,10 @@
 
 <script>
     import{change_text,instype} from "../../service/data"
-    import {exit,layer,analyzeTabel,slectNum,inputCheck} from '../../components/common/common'
+    import {exit,layer,analyzeTabel,slectNum,inputCheck,getPrams} from '../../components/common/common'
     import {mapState, mapMutations} from 'vuex'
     import bjTabel from '../../components/common/baojiaTabel'
-    import {getHebao,sendMsg} from "../../service/getData"
+    import {getHebao,sendMsg,getxbInfo} from "../../service/getData"
     export default {
         data(){
             return {
@@ -67,15 +67,10 @@
                 ForceNoRate:20,
                 dialogVisible:false,
                 vatRate:false,
-                alltype:{
-                    BizTotal:"商业险保费合计",
-                    ForceTotal:"交强险保费合计",
-                    TaxTotal:"车船税合计",
-                },
                 SubmitResult:{
-                    1:"核保中",
-                    2:"核保中",
-                    4:"核保中",
+                    1:"未核保",
+                    2:"未核保",
+                    4:"未核保",
                 },
                 textarea:"",
                 
@@ -96,7 +91,7 @@
         },
         methods: {
             init(){
-                if(sessionStorage.getItem("baojia")){
+                if(JSON.parse(sessionStorage.getItem("baojia"))){
                     this.baojia = JSON.parse(sessionStorage.getItem("baojia"));
                     this.baojia.Items.map((item)=>{
                         item.SubmitResult = "核保中"
@@ -108,9 +103,11 @@
                     return;
                 }
                 this.fliterBaoe(0);
-                this.tableData1 = analyzeTabel(this.alltype,this.Items[0],["chinese","allfei"]);
-                this.syItems = this.jqItems = slectNum(40);
+                this.tableData1 = analyzeTabel(change_text.alltype,this.Items[0],["chinese","allfei"]);
+                this.syItems = slectNum(40);
+                this.jqItems = slectNum(40);
                 this.reheibao();
+                delete sessionStorage.Source;
             },
             handleClick(){
 
@@ -118,13 +115,30 @@
             check(index){
                 this.ischecked = index;
                 this.fliterBaoe(index);
-                this.tableData1 = analyzeTabel(this.alltype,this.Items[index],["chinese","allfei"]);
+                this.tableData1 = analyzeTabel(change_text.alltype,this.Items[index],["chinese","allfei"]);
             },
-            reoffer(){
+            async reoffer(){
+                let pram = getPrams(location.href);
+                if(pram&&pram.type == "order"){
+                    let baojia = JSON.parse(sessionStorage.baojia)
+                    let pram ={
+                        LicenseNo:baojia.UserInfo.LicenseNo,
+                        CityCode:baojia.UserInfo.CityCode||1,
+                        username:JSON.parse(sessionStorage.getItem("userInfo")).username,
+                    }
+                    let load = this.$loading({body:true,text:"加载中...",customClass:"loading"})
+                    let data = await getxbInfo(pram);
+                    load.close();
+                    if(data.code == 0){
+                        sessionStorage.setItem("xbpram",JSON.stringify(data.res));
+                        sessionStorage.setItem("CityCode",baojia.UserInfo.CityCode||1);
+                        this.$router.push("newoffer");
+                        return          
+                    }
+                }
                 this.$router.push("newoffer")
             },
             orderoffer(){
-
                 let check = inputCheck([
                     [!this.baojia.order,"该单未分配，请先分配"],
                     [this.Items[this.ischecked].QuoteStatus==0,"该单报价失败，不能预约出单"]
@@ -146,40 +160,74 @@
             fliterBaoe(index){
                 let arr = analyzeTabel(instype,this.Items[index],["chinese","BaoE","BaoFei"],this.getfilter);
                 arr.map((item,index)=>{
-                    if(item.chinese == instype.BoLi||item.chinese == instype.HcXiuLiChang){
+                    if(item.chinese == instype.BoLi){
                         item.BaoE = change_text.BoLi[item.BaoE]
+                    }else if(item.chinese == instype.HcXiuLiChang){
+                        item.BaoE = item.BaoE
                     }else if(item.BaoE == 1){
                         item.BaoE = "投保"
                     }
+                    
                 })
                 this.tableData = arr;
             },
-            async reheibao(refresh=false){                
-                this.Items.map((item,index)=>{
+            async reheibao(refresh=false){
+                if(!(sessionStorage.SubmitGroup))  return
+                let  SubmitGroup = JSON.parse(sessionStorage.SubmitGroup);
+                var hItems = [];
+                switch(SubmitGroup){
+                    case 0:  break;            
+                    case 1: hItems = [{Source:1}];break;
+                    case 2: hItems = [{Source:2}];break;
+                    case 3: hItems = [{Source:1},{Source:2}];break;
+                    case 4: hItems = [{Source:4}];break;
+                    case 5: hItems = [{Source:1},{Source:4}];break;
+                    case 6: hItems = [{Source:2},{Source:4}];break;
+                    case 7: hItems = [{Source:1},{Source:2},{Source:4}];break;
+
+                }
+                if(!hItems[0]) return;            
+                hItems.map((item,index)=>{
                     let obj = {
                         recordId:this.baojia.recordId,
                         SubmitGroup:item.Source
                     }
+                    this.SubmitResult[item.Source] = "核保中";
                     getHebao(obj).then((data)=>{
                         if(data.code == 0){
-                            this.SubmitResult[item.Source] = data.res.SubmitResult;                   
+                            this.SubmitResult[item.Source] = data.res.SubmitResult;
+                            if(refresh) layer("info","已刷新",this)                   
                         }else{
                             this.SubmitResult[item.Source] = data.ch;
                         }
                     })             
-                })
-                if(refresh) layer("info","已刷新",this)   
+                })    
             },
             getprice(){
+                if(!this.companytype){
+                    return;
+                }
                 let Source = this.companytype;
+                if(!sessionStorage.userInfo) location.relode();
+                let userInfo = JSON.parse(sessionStorage.userInfo);
+                let arr = userInfo.source.filter((item)=>{
+                    return item.code == Source; 
+                })
+                if(arr[0]){
+                    this.jqItems = slectNum(arr[0].ForceDiscount);
+                    this.syItems = slectNum(arr[0].BizDiscount);
+                    if(arr[0].BizDiscount<20) this.BizNoRate = 0; 
+                    if(arr[0].ForceDiscount<20) this.ForceNoRate = 0;              
+                }
                 let item = this.Items.filter((row)=>{
                    return  row.Source == Source
                 })
                 if(item.length>0) item = item[0];
-                let sumPrice = item.BizTotal+item.ForceTotal+item.TaxTotal-(item.BizTotal*this.BizNoRate/100+item.ForceTotal*this.ForceNoRate/100)/(this.vatRate?1:1.06);
-                let str = "尊敬的京"+this.baojia.UserInfo.HolderName+"车主,"+this.change_text.suboffer[Source].slice(2)+"保险车险报价:总额"+(item.BizTotal+item.ForceTotal+item.TaxTotal).toFixed(2)+"元,商业险"+item.BizTotal.toFixed(2)+"元,交强险"+item.ForceTotal.toFixed(2)+"元,车船税"+item.TaxTotal.toFixed(2)+"元。"
+                let sumPrice =item.BizTotal+item.ForceTotal+item.TaxTotal-(item.BizTotal*this.BizNoRate/100+item.ForceTotal*this.ForceNoRate/100)/(this.vatRate?1.06:1);
+                let str = "尊敬的"+this.baojia.UserInfo.LicenseNo+"车主,"+this.change_text.suboffer[Source].slice(2)+"保险车险报价:总额"+(item.BizTotal+item.ForceTotal+item.TaxTotal).toFixed(2)+"元,商业险"+item.BizTotal.toFixed(2)+"元,交强险"+item.ForceTotal.toFixed(2)+"元,车船税"+item.TaxTotal.toFixed(2)+"元。"
                 this.tableData.map((row)=>{
-                    str += row.chinese+row.BaoFei+"元，保额"+row.BaoE+"元。"
+                    str += row.chinese+row.BaoFei+"元，保额"+row.BaoE;
+                    isNaN(row.BaoE)?str+="。":str+="元。";
                 })
                 str += "优惠后的价格:"+sumPrice.toFixed(2)+"元,共优惠:"+(item.BizTotal+item.ForceTotal+item.TaxTotal-sumPrice).toFixed(2)+"元"
                 this.textarea = str;
@@ -187,14 +235,15 @@
             async sendmsg(){
                 let check = inputCheck([
                     [!this.baojia.UserInfo.HolderMobile,"手机号码不能为空"],
-                    [!this.textarea,"短信内容不能为空"]
+                    [!this.textarea,"短信内容不能为空"],
+                    [!(/^1[3|4|5|8][0-9]\d{4,8}$/.test(this.baojia.UserInfo.HolderMobile)),"请输入正确的手机号码"],
                 ],this)
                 if(check == -1) return;
                 let data = await sendMsg(this.baojia.UserInfo.HolderMobile,this.textarea)
                 if(data.code == 0){
                     layer("success","发送成功",this);
                 }else{
-                    layer("success","",this);
+                    layer("error",data.ch,this);
                 }
             }
         }

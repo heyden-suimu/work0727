@@ -1,3 +1,4 @@
+import {change_text,instype} from "../../service/data"
 let getPrams = function (url) {
 	if(url.indexOf("?") == -1){return}
 	var pram = url.split("?")[1];
@@ -55,8 +56,9 @@ let Cookie = {
 }
 // 退出
 let exit = (vm)=>{
-	if(!sessionStorage.userInfo){
-		layer("warning","先请登录",vm)
+	if(!sessionStorage.userInfo||!sessionStorage.login){
+		layer("warning","先请登录",vm);
+		sessionStorage.clear();
 		vm.$router.push("/login");
 	} 
 
@@ -101,6 +103,21 @@ let  analyzeTabel = (souce,req={},desti=[],rule=(res)=>true)=>{
 	}
 	return  back.filter(res => rule(res));
 }
+// 过滤表格数据
+let fliterBaoe = (listitem)=>{
+    let arr = analyzeTabel(instype,listitem,["chinese","BaoE","BaoFei"],getfilter);
+    arr.map((item,index)=>{
+        if(item.chinese == instype.BoLi||item.chinese == instype.HcXiuLiChang){
+            item.BaoE = change_text.BoLi[item.BaoE]
+        }else if(item.BaoE == 1){
+            item.BaoE = "投保"
+        }
+    })
+    return arr;
+    function  getfilter(item){
+        return item["BaoE"]>0
+    }
+}
 // 下拉框范围
 let slectNum = (end,start=0)=>{
 	let arr = [];
@@ -112,29 +129,67 @@ let slectNum = (end,start=0)=>{
 // 搜索框条件
 let serachInput = (obj,arr)=>{
 	for(var key in obj){
-		if(obj[key]){
+		if(obj[key]&&!(obj[key] instanceof Object)){
 			arr = arr.filter((item)=>{
+				if(!item[key]) return;
 				return  item[key].indexOf(obj[key])!= -1;
 			})
+		}else if(obj[key]&&obj[key]["value"]&&(obj[key] instanceof Object)){
+			if(obj[key].type == "text"){
+				arr = arr.filter((item)=>{
+					if(item[obj[key]["name"]]&&item[obj[key]["name"]][key]){
+						return  item[obj[key]["name"]][key].indexOf(obj[key]["value"])!= -1;
+					}				
+				})
+			}else if(obj[key].type == "datetimerange"&&obj[key]["value"][0]&&obj[key]["value"][1]){
+				arr = arr.filter((item)=>{
+						if(!item.reinfo) return;
+						var date;
+						if(!obj[key]["name"]) {
+							date = new Date(item[key])
+						}else{
+							date = new Date(item[obj[key]["name"]][key])
+						}
+						// debugger
+						return  date.getTime()>=obj[key]["value"][0].getTime()&&date.getTime()<obj[key]["value"][1].getTime();			
+				})
+			}else if(obj[key].type == "date"){
+				arr = arr.filter((item)=>{
+						if(!item.reinfo) return;
+						let date = new Date(item[obj[key]["name"]][key])
+						return  date.getTime()<=obj[key]["value"].getTime();			
+				})
+			}else if(obj[key].type == "changetext"){
+				arr = arr.filter((item)=>{
+					if(item[obj[key]["name"]]&&item[obj[key]["name"]][key]){
+						return  change_text.suboffer[item[obj[key]["name"]][key]].indexOf(obj[key]["value"])!= -1;
+					}				
+				})
+			}	
 		} 
 	}
 	return arr
 }
+// 初始化数据赋值
 let initData = (vm,res,arr) => {
 	if(vm instanceof Object&&!(vm instanceof Array)){
 		for(let val of arr){
-			vm[val] = res[val];
-			console.log(val)
-			console.log(vm[val])
+			if(res[val]) vm[val] = res[val];
 		}
-
 	}else if(vm instanceof Array){
 		let obj ={};
 		for(let val of arr){
-			obj.val = vm.val;
+			obj[val] = res[val];
 		}
 		return obj;
 	}
 	
+}
+// 日期格式
+let DateTo = (date)=>{
+	var mon = date.getMonth() + 1;
+	var day = date.getDate();
+	var nowDay = date.getFullYear() + "-" + (mon<10?"0"+mon:mon) + "-" +(day<10?"0"+day:day);
+	return nowDay
 } 
-export {getPrams,inputCheck,Cookie,exit,layer,analyzeTabel,slectNum,serachInput,initData}
+export {getPrams,inputCheck,Cookie,exit,layer,analyzeTabel,slectNum,serachInput,initData,DateTo,fliterBaoe}

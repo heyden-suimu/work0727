@@ -8,19 +8,17 @@
  */
 let baseUrl; 
 let routerMode;
-const imgBaseUrl = 'https://fuss10.elemecdn.com';
 
 if (process.env.NODE_ENV == 'development') {
 	baseUrl = 'http://121.40.68.137:15000';
 	routerMode = 'hash'
 }else{
-	// baseUrl = 'http://api.aituyou.me:8002';
-	baseUrl = 'http://121.40.68.137:15000';
+	baseUrl = 'http://api.aituyou.me:8002';
+	// baseUrl = 'http://121.40.68.137:15000';
 	routerMode = 'hash'
 }
 
 export {
 	baseUrl,
 	routerMode,
-	imgBaseUrl
 }

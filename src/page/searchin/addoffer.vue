@@ -1,4 +1,4 @@
-<template>
+1<template>
     <div class="in_content">
         <div class="addoffer">
             <el-tabs v-model="activeName" @tab-click="handleClick" >               
@@ -14,7 +14,7 @@
                 </el-tab-pane>
                 <div class="el-tab-pane city"> 
                     <div class="tab-left"><span>投保地区</span></div>  
-                    <el-select v-model="select1"  placeholder="北京">
+                    <el-select v-model="insCIty"  placeholder="北京">
                       <el-option v-for="(item,index) in city" :label="item.name" :value="item.code"></el-option>
                     </el-select>
                 </div>               
@@ -35,8 +35,8 @@
                 activeName:"first",
                 LicenseNo:"",
                 CityCode:1,
-                select1:"",
-                List:null,
+                insCIty:1,
+                List:[{provinceShort:"京",code:1}],
                 city:null,
             }
         },
@@ -63,13 +63,13 @@
                 "getUserInfo"
             ]),
             init(){
-                if(!this.$store.state.cityInfo){
+                if(!sessionStorage.cityInfo){
                     this.$store.dispatch('getCityInfo').then(()=>{
                         this.List = this.$store.state.cityInfo;
                         this.city = this.List;
                     })
                 }else{
-                    this.List = this.$store.state.cityInfo;
+                    this.List = JSON.parse(sessionStorage.cityInfo);
                     this.city = this.List;
                 }
                 if(!this.$store.state.getUserInfo){
@@ -77,7 +77,7 @@
                 }
             },
             handleClick(tab, event) {
-                console.log(tab, event);
+                // console.log(tab, event);
             },
             setString(){
                 // [...this.LicenseNo].map((itme,index,arr)=>{
@@ -88,6 +88,7 @@
                 this.LicenseNo = this.LicenseNo.toUpperCase()
             },
             async add_offer(){
+                exit(this);
                 if(!this.LicenseNo){
                     layer('error',"请输入车牌号",this);
                     return
@@ -106,11 +107,15 @@
                 load.close();
                 if(data.code == 0){
                     sessionStorage.setItem("xbpram",JSON.stringify(data.res));
+                    sessionStorage.setItem("CityCode",this.insCIty);
                     this.$router.push("newoffer");          
                 }else{
                     layer("error","未获取到续保信息",this)
                 }
             },
+            git(){
+                alert(this.CityCode)
+            }
         },
 
     }

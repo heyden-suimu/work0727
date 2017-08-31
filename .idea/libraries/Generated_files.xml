@@ -1,30 +1,5 @@
 <component name="libraryTable">
   <library name="Generated files" type="javaScript">
-    <properties>
-      <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/dist/config/index.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/foodDetail.6f36d160c33eef4509a0.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/app.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/manifest.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/home.d7602ca2191204cef231.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/vendor.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/vendor.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/app.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/shopDetail.34951604ac341afe23a3.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/manifest.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/login.0bd0cfc41534d772ae5c.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/shop.a49baf2523b21657897d.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/shopDetail.34951604ac341afe23a3.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/game_src/static/js/shopSafe.d8a58fc0e36491efce76.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/shop.a49baf2523b21657897d.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/foodDetail.6f36d160c33eef4509a0.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/login.0bd0cfc41534d772ae5c.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/src/router/router.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/shopSafe.d8a58fc0e36491efce76.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/elm/static/js/home.d7602ca2191204cef231.min.js" />
-        <item url="file://$PROJECT_DIR$/dist/src/main.js" />
-      </sourceFilesUrls>
-    </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/dist/config/index.js" />
       <root url="file://$PROJECT_DIR$/dist/game_src/static/js/foodDetail.6f36d160c33eef4509a0.min.js" />

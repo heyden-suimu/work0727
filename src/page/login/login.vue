@@ -23,7 +23,7 @@
     import {change_text} from "../../service/data"
     import md5 from 'js-md5'
     import {mapState, mapMutations} from 'vuex' 
-    import {login} from "../../service/getData"
+    import {login,Token} from "../../service/getData"
     export default {
         data(){
             return {
@@ -33,7 +33,7 @@
             }
         },
         created(){
-            
+            this.init()
         },
         components: {
             
@@ -43,6 +43,9 @@
         },
         methods: {
             //发送登陆信息
+            async init(){
+                
+            },
             mobileLogin(){
                 inputCheck([
                     [!this.userAccount,"请输入用户名"],
@@ -53,10 +56,10 @@
             async loginSuc(){
                 let data = await login(this.userAccount,md5(this.passWord));
                 let user = {username:this.userAccount,password:md5(this.passWord),state:true};
-                if(data.code == 0){
-                    Cookie.setCookie("login",JSON.stringify(user),1)
+                if(data.code == 0){       
                     this.$router.push("/home");
                     sessionStorage.clear();
+                    sessionStorage.setItem("login",JSON.stringify(user));
                     sessionStorage.setItem("userInfo",JSON.stringify(data.res));
                 }else{
                    layer("error",data.ch,this)

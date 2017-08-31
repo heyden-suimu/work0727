@@ -18,7 +18,7 @@
             <h3>被保人信息</h3>
             <el-row>
               <el-col :span="8"><div class="grid-content bg-purple">
-                  <span>车主姓名：</span><el-input v-model="search_Res.UserInfo.InsuredName" class="offerinput" disabled></el-input>
+                  <span>被保人姓名：</span><el-input v-model="search_Res.UserInfo.InsuredName" class="offerinput" disabled></el-input>
               </div></el-col>
               <el-col :span="8"><div class="grid-content bg-purple-light">
                   <span>证件类型：</span>
@@ -26,8 +26,8 @@
                     <el-option
                       v-for="(item,index) in idType"
                       :key="index"
-                      :label="item"
-                      :value="index">
+                      :label="item.value"
+                      :value="item.code">
                     </el-option>
                   </el-select>
               </div></el-col>
@@ -44,18 +44,18 @@
                       <span>车牌号：</span><span>{{search_Res.UserInfo.LicenseNo}}</span>
                   </div></el-col>
                   <el-col :span="8"><div class="grid-content bg-purple-light">
-                      <span>品牌型号：</span><span>{{search_Res.UserInfo.LicenseNo}}</span>
+                      <span>品牌型号：</span><span>{{search_Res.UserInfo.ModleName}}</span>
                   </div></el-col>
                   <el-col :span="8"><div class="grid-content bg-purple-light">
-                      <span>车主姓名：</span><span>{{search_Res.UserInfo.LicenseNo}}</span>
+                      <span>车主姓名：</span><span>{{search_Res.UserInfo.LicenseOwner}}</span>
                   </div></el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="8"><div class="grid-content bg-purple">
-                      <span>商业险起保日期：</span><span>{{search_Res.UserInfo.ForceStartDate}}</span>
+                      <span>商业险起保日期：</span><span>{{search_Res.UserInfo.BusinessStartDate||"无"}}</span>
                   </div></el-col>
                   <el-col :span="8"><div class="grid-content bg-purple-light">
-                      <span>交强险起保日期：</span><span>{{search_Res.UserInfo.BusinessStartDate}} </span>
+                      <span>交强险起保日期：</span><span>{{search_Res.UserInfo.ForceStartDate||"无"}} </span>
                   </div></el-col>
                 </el-row>
                 <el-row>
@@ -73,10 +73,10 @@
                   <span>支付方式：</span>
                   <el-select v-model="payment" placeholder="">
                     <el-option
-                      v-for="(item,index) in idType1"
-                      :key="index"
+                      v-for="(item,value) in idType1"
+                      :key="value"
                       :label="item"
-                      :value="index">
+                      :value="value">
                     </el-option>
                   </el-select>
               </div></el-col>
@@ -84,10 +84,10 @@
                   <span>支付状态：</span>
                   <el-select v-model="payStatus" placeholder="">
                     <el-option
-                      v-for="(item,index) in idType2"
-                      :key="index"
+                      v-for="(item,value) in idType2"
+                      :key="value"
                       :label="item"
-                      :value="index">
+                      :value="value">
                     </el-option>
                   </el-select>
               </div></el-col>
@@ -100,10 +100,10 @@
                   <span>配送方式：</span>
                   <el-select v-model="distribution" placeholder="">
                     <el-option
-                      v-for="(item,index) in idType3"
-                      :key="index"
+                      v-for="(item,value) in idType3"
+                      :key="value"
                       :label="item"
-                      :value="index">
+                      :value="value">
                     </el-option>
                   </el-select>
               </div></el-col>
@@ -122,7 +122,7 @@
               </div></el-col>
             </el-row>
         </div>
-        <div>
+        <div v-if="eidtype">
             <h3>上传影像</h3>
             <div class="upload">
                 <el-upload
@@ -139,37 +139,51 @@
                 </el-dialog>
             </div>
         </div>
+        <div v-if="!eidtype">
+            <h3>影像信息</h3>
+            <div class="dowmload">
+                <ul>
+                    <li v-for="(item,index) in photos"><img :src="item" @click="viewimg(item)"></li>
+                </ul>
+                <el-dialog v-model="dialogVisible" size="tiny">
+                  <img width="100%" :src="dialogImageUrl" alt="">
+                </el-dialog>
+            </div>
+        </div>
         <div class="foot">
             <div>
-                <button  @click="submit()">提交</button>
-                <button  @click="submit(3)">通过审核</button>
-                <button  @click="submit(4)">未通过审核</button>
+                <button  @click="submit()" v-if="eidtype">提交</button>
+                <button  @click="$router.go(-1)" v-if="!eidtype">返回</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import{get_suboffer,search_res,idType,change_text,qnUrl} from "../../service/data"
-    import {exit,layer,initData,inputCheck} from '../../components/common/common'
+    import{get_suboffer,change_text,qnUrl} from "../../service/data"
+    import {exit,layer,initData,inputCheck,getPrams} from '../../components/common/common'
     import {mapState, mapMutations} from 'vuex' 
     import bjTabel from '../../components/common/baojiaTabel'
     import {getOrder,patchOrder,getToken} from "../../service/getData"
     export default {
          data(){
             return {
-                search_Res:search_res,
-                idType:idType,
-                idType1:["微信支付","银联支付"],
-                idType2:["未支付","已支付"],
-                idType3:["快递配送","自领"],
+                search_Res:"",
+                idType:[
+                    {code:1,value:"身份证"},
+                    {code:2,value:"组织机构代码证"},
+                    {code:9,value:"营业执照（社会统一信用代码）"},
+                ],
+                idType1:{0:"微信支付",1:"银联支付"},
+                idType2:{0:"未支付",1:"已支付"},
+                idType3:{0:"快递配送",1:"自领"},
                 dialogImageUrl: '',
                 dialogVisible: false,
                 tableData:[],
                 tableData1:[],
-                payment:0,
-                payStatus:0,
-                distribution:0,
+                payment:"0",
+                payStatus:'0',
+                distribution:'0',
                 address:"",
                 recipientsPhone:"",
                 recipientsName:"",
@@ -179,7 +193,8 @@
                 salesmanPhoneNumber:"",
                 salesmanName:"",
                 uploddata:"",
-                imgList:[]
+                photos:[],
+                eidtype:true,
             }
         },
         created(){
@@ -194,7 +209,7 @@
         },
         methods: {
             async init(){
-                if(!sessionStorage.getItem("baojia")){
+                if(!JSON.parse(sessionStorage.getItem("baojia"))){
                     layer("warning","请先报价",this)
                     this.$router.go(-1);
                     return;
@@ -204,16 +219,28 @@
                     this.$router.push("suboffer");
                     return;
                 }
+                let param = getPrams(location.href);
+                if(param&&param.type == "read"){
+                    this.eidtype = false;
+                }
+    
                 this.search_Res = JSON.parse(sessionStorage.getItem("baojia"));
                 let data = await getOrder({orderId:this.search_Res.order.orderId});
                 if(data.code == 0){
                     let res = data.res;
-                    let arr = ["payment","payStatus","payStatus","distribution","recipientsName","recipientsPhone","salesmanUsername","salesmanPhoneNumber","salesmanName","address"]
+                    let arr = ["payment","payStatus","distribution","recipientsName","recipientsPhone","salesmanUsername","salesmanPhoneNumber","salesmanName","address"]
                     initData(this,res,arr);
-                    this.dialogImageUrl = res.photos;
+                    if(param&&param.type == "read"){
+                        this.photos = res.photos;
+                    }
                 }
                 this.tableData = JSON.parse(sessionStorage.tableData);
                 this.tableData1 = JSON.parse(sessionStorage.tableData1);
+                console.log(this.payment)
+                if(!JSON.parse(sessionStorage.Source)){
+                    layer("error","请预约出单",this)
+                    return
+                }
                 this.Source = sessionStorage.Source;
             },
             handleRemove(file, fileList) {
@@ -221,8 +248,7 @@
             },
             handlePictureCardPreview(res,file) {
                 this.dialogImageUrl = qnUrl+res.hash;
-                this.imgList.push(this.dialogImageUrl)
-                // this.dialogVisible = true;
+                this.photos.push(this.dialogImageUrl);
             },
             async submit(index=2){
                 let check = inputCheck([
@@ -233,12 +259,15 @@
                 if(check == -1){
                     return;
                 }
-                let arr = ["payment","payStatus","distribution","recipientsName","recipientsPhone","address"]
+                let arr = ["payment","payStatus","distribution","recipientsName","recipientsPhone","address"];
+                let objadd = initData([],this,arr)
                 let obj = {
                     orderId:this.search_Res.order.orderId,
                     approvalStatus:String(index),
-                    photos:this.imgList,
+                    photos:this.photos,
+                    Source:Number(this.Source),
                 }
+                obj = Object.assign(obj,objadd);
                 let  data = await patchOrder(obj);
                 if(data.code == 0){
                     layer("success","提交成功",this);
@@ -254,6 +283,10 @@
                     token:data.res
                 }
             },
+            viewimg(src){
+                this.dialogImageUrl = src;
+                this.dialogVisible = true;
+            }
         }
     }
 
@@ -307,6 +340,22 @@
                 }
                 padding-bottom: .15rem;
                 background: #F8F8F8;
+            }
+            .dowmload{
+                padding-left: .1rem;
+                border: 1px solid #CCC;
+                ul{
+                    overflow: hidden;
+                }
+                li{
+                    width: 25%;
+                    float: left;
+                    padding: .1rem .1rem;
+                    img{
+                        width: 100%;
+                        border:1px solid #ccc;
+                    }
+                }
             }
         }
         .foot{

@@ -9,9 +9,11 @@
                   <span>录入时间：</span>
                   <el-date-picker
                   v-model="create_time"
-                  type="datetimerange"
+                  type="daterange"
                   placeholder="选择时间范围"
-                  :picker-options="pickerOptions0">
+                  format="yyyy-MM-dd"
+                  :picker-options="pickerOptions0"
+                  @change="search">
                 </el-date-picker>
               </div></el-col>
               <el-col :span="7"><div class="grid-content bg-purple">
@@ -23,18 +25,22 @@
                   <span>交强险到期时间：</span>
                   <el-date-picker
                   v-model="ForceExpireDate"
-                  type="date"
-                  placeholder="选择日期"
-                  :picker-options="pickerOptions0">
+                  type="daterange"
+                  placeholder="选择日期范围"
+                  format="yyyy-MM-dd"
+                  :picker-options="pickerOptions0"
+                  @change="search">
                 </el-date-picker>
               </div></el-col>
               <el-col :span="7"><div class="grid-content bg-purple-light">
                   <span>商业险到期时间：</span>
                   <el-date-picker
                   v-model="BusinessExpireDate"
-                  type="date"
-                  placeholder="选择日期"
-                  :picker-options="pickerOptions0">
+                  type="daterange"
+                  placeholder="选择日期范围"
+                  format="yyyy-MM-dd"
+                  :picker-options="pickerOptions0"
+                  @change="search">
                 </el-date-picker>
               </div></el-col>
             </el-row>
@@ -44,13 +50,14 @@
             >
                 <div class="userlist">
                     <el-row>
-                        <el-col :span="7"><el-input placeholder="输入业务员姓名"></el-input></el-col>
-                        <el-col :span="8"><el-button>搜索</el-button></el-col>
+                        <el-col :span="7"><el-input placeholder="输入业务员姓名" v-model="userlist_name"  @change="searchuser"></el-input></el-col>
+                        <el-col :span="8"><el-button @click="searchuser">搜索</el-button></el-col>
                     </el-row>
                   <el-table
                   :data="tableData_user"
                   ref="userOrder"
                   @select = "disUser"
+                  @select-all="handleSelectAllUser"
                   style="width: 100%;"
                   border
                   >
@@ -83,13 +90,14 @@
             <div class="serfoot" >
                 <el-button @click="search">搜索</el-button> 
                 <el-button @click="distribute">分配</el-button>
-                <el-button @click="del_order">回收</el-button>  
+                <!-- <el-button @click="del_order">回收</el-button>   -->
             </div>
         </div>
         <div class="handle"><span><i class="el-icon-delete"></i>批量删除</span><span><i class="el-icon-upload2"></i>导出Excel</span></div>
         <el-table
           :data="tableData"
           @select="handleSelect"
+          @select-all="handleSelectAll"
           ref="orderlist"
           v-loading="loading"
           style="width: 96%;margin-left:2%;"
@@ -101,12 +109,13 @@
           </el-table-column>
           <el-table-column
             prop="reinfo.LicenseOwner"
+            show-overflow-tooltip
             label="车主"
             >
           </el-table-column>
           <el-table-column
             prop="reinfo.LicenseNo"
-            width="110"
+            width="115"
             label="车牌号"
             >
           </el-table-column>
@@ -125,7 +134,7 @@
             show-overflow-tooltip
             label="录入时间">
             <template scope="scope">
-                {{new Date(scope.row.reinfo.create_time).toLocaleDateString()}}
+                {{scope.row&&new Date(scope.row.create_time).toLocaleDateString()}}
             </template>
           </el-table-column>
           <el-table-column
@@ -142,13 +151,15 @@
             </template>
           </el-table-column>
           <el-table-column
+            width="85"
+            show-overflow-tooltip
             label="业务员">
             <template scope="scope">
                 {{scope.row.order?scope.row.order.salesmanName:"N/A"}}
             </template>
           </el-table-column>
            <el-table-column
-            width="80"
+            width="76"
             label="操作"
             ><template scope="scope">
                 <el-button @click="handdis(scope.row,scope.$index)" type="text" size="small">分配</el-button><br/>
@@ -178,10 +189,10 @@
 </template>
 
 <script>
-    import {inputCheck,exit,layer,serachInput} from '../../components/common/common'
+    import {inputCheck,exit,layer,serachInput,analyzeTabel,fliterBaoe} from '../../components/common/common'
     import {mapState, mapActions} from 'vuex' 
     import {orderlist,disOrder,getsuperior,delOrder} from "../../service/getData"
-    import {change_text} from "../../service/data"
+    import {change_text,instype} from "../../service/data"
     export default {
         data(){
             return {
@@ -205,11 +216,12 @@
                order:null,
                index:null,
                BusinessExpireDate:null,
-               create_time:null,
+               create_time:"",
                ForceExpireDate:null,
                name:null,
                loading:"",
                change_text:change_text,
+               userlist_name:""
             }
         },
         created(){
@@ -234,11 +246,11 @@
                 "getUserInfo"
             ]),
             async init(){
-                if(!this.$store.state.orderlist){
-                    this.loading = true;
-                  await  this.$store.dispatch("getOrderList");
-                }
-                if(!this.$store.state.userinfo.userId){
+                // if(!this.$store.state.orderlist){
+                this.loading = true;
+                await  this.$store.dispatch("getOrderList");
+                // }
+                if(!JSON.parse(sessionStorage.userInfo)){
                   await  this.$store.dispatch("getUserInfo");
                 }
                 this.tableData = this.$store.state.orderlist.slice(this.start,this.start+this.listsize);
@@ -247,13 +259,18 @@
                 this.orderList = this.$store.state.orderlist;          
             },
             handleSelect(selection,row){
-                console.log(selection)
                 if(selection.length>1){
                     layer("warning","只能分配一单",this);
                     this.$refs.orderlist.toggleRowSelection(selection[1]);
                     return
                 }
                 this.order = selection[0];
+            },
+            handleSelectAll(selection,row){
+                 this.$refs.orderlist.clearSelection();
+            },
+            handleSelectAllUser(selection,row){
+                 this.$refs.userOrder.clearSelection();
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
@@ -281,8 +298,37 @@
             handleClick(row){
                 row.priceSession.recordId = row._id;
                 row.priceSession.order = row.order;
-                sessionStorage.setItem("baojia",JSON.stringify(row.priceSession));
-                this.$router.push("suboffer");
+                row.priceSession.SubmitGroup = row.SubmitGroup;
+                // row.priceSession.UserInfo = Object.assign(row.priceSession.UserInfo,row.reinfo)
+                row.priceSession.UserInfo.ModleName = row.reinfo.ModleName;
+                row.priceSession.UserInfo.LicenseOwner = row.reinfo.LicenseOwner;
+                row.priceSession.UserInfo.LicenseNo = row.reinfo.LicenseNo;
+
+                sessionStorage.setItem("baojia",JSON.stringify(row.priceSession)); 
+                sessionStorage.setItem("SubmitGroup",row.SubmitGroup);
+                if(row.order&&row.order.Source){
+                    var tableItem = row.priceSession.Items.filter((item)=>{
+                        return item.Source == row.order.Source
+                    })
+                    if(!tableItem[0]) return;
+                    tableItem = tableItem[0] 
+                    let tableData1 = analyzeTabel(change_text.alltype,tableItem,["chinese","allfei"]);
+                    let tableData = fliterBaoe(tableItem);
+                    sessionStorage.setItem("Source",row.order.Source);
+                    sessionStorage.setItem("tableData1",JSON.stringify(tableData1));
+                    sessionStorage.setItem("tableData",JSON.stringify(tableData));
+                    if(row.order.approvalStatus == '3'||row.order.approvalStatus == '2')
+                    {
+                        this.$router.push("orderoffer?type=read");
+                        return;
+                    }
+                    if(row.order.approvalStatus == '4')
+                    {
+                        this.$router.push("orderoffer?type=edit");
+                        return;
+                    }
+                }
+                this.$router.push("suboffer?type=order");
             },
             handleStatus(index,text){
                 this.$msgbox({
@@ -296,50 +342,85 @@
               }
             },
             search(){
-                this.LicenseNo = this.LicenseNo.toUpperCase()
+                this.searchorder = this.$store.state.orderlist;
                 this.tableData = serachInput({
                     LicenseNo:this.LicenseNo,
-                    name:this.name,
-                },this.orderlist)
+                    salesmanName:{name:"order",value:this.name,type:"text"},
+                    create_time:{value:this.create_time,type:"datetimerange"},
+                    ForceExpireDate:{name:"reinfo",value:this.ForceExpireDate,type:"datetimerange"},
+                    BusinessExpireDate:{name:"reinfo",value:this.BusinessExpireDate,type:"datetimerange"},
+                },this.searchorder)
+                this.orderList = this.tableData;
+                this.totalList = this.tableData.length;
+            },
+            searchuser(){
+                this.tableData_user = serachInput({
+                    name:this.userlist_name,
+                },this.olduserlist)
+                this.userlist = this.tableData_user;
+                this.totalList_user = this.tableData_user.length;
             },
             handdis(row,index){
+                this.$refs.orderlist.clearSelection()
+                this.$refs.orderlist.toggleRowSelection(row);
                 this.order = row;
+                if(row.order){
+                    layer("error","该单已分配",this);
+                    return;
+                }       
                 this.index = index;
                 this.distribute();
             },
-            async distribute(Row){
-                if(!this.order){
-                    layer("error","请先选一单",this);
-                    return
-                }
+            async distribute(Row){   
+                let check = inputCheck([
+                    [!this.order,"请先选一单"],
+                    [this.order&&this.order.order,"该单已分配"],
+                ],this)
+
+                if(check == -1) return;
                 this.dialogVisible = true;
-                let userinfo = this.$store.state.userinfo;
-                if(!userinfo.userId){
-                    await this.$store.dispatch("getUserInfo");
-                    userinfo = this.$store.state.userinfo;
-                }
-                if(userinfo.level == 2){
-                  this.tableData_user = [
-                    {name:userinfo.name,username:userinfo.username,parentId:userinfo.parentId,userId:userinfo.userId}
-                  ];
-                  this.totalList_user = 1;
-                  
+                if(!sessionStorage.userInfo) location.reload();
+                let userinfo = JSON.parse(sessionStorage.userInfo);
+                let own = {name:userinfo.name,username:userinfo.username,parentId:userinfo.parentId,userId:userinfo.userId}
+                if(userinfo.level == 3){
+                  this.tableData_user = [own];
+                  this.totalList_user = 1;         
                 }else{
                     let obj = {
                         userId:userinfo.userId,
                     }
                      let data = await getsuperior(obj)
                      this.userlist = data.res;
+                     this.userlist.unshift(own);
+                     this.olduserlist = this.userlist;
                      this.totalList_user = this.userlist.length;
                      this.tableData_user= this.userlist.slice(0,4); 
                 }
                  
             },
             async disUser(selection,row){
+                let hasOrder = this.$store.state.orderlist;
+                // let d = new Date();
+                // let datearr = [d,d.setTime(d.getTime() + (1 * 24 * 60 * 60 * 1000))]
+                // let passuser = serachInput({
+                //     salesmanName:{name:"order",value:row.name,type:"text"},
+                //     create_time:{value:datearr,type:"datetimerange"},
+                // },hasOrder)
+                let passuser = hasOrder.filter((item)=>{
+                    if(!item.order) return;
+                    return item.order.salesmanName == row.name&&(item.order.approvalStatus!=3)
+                })
+                await this.$store.dispatch("getUserInfo");
+                sessionStorage.userInfo = JSON.stringify(this.$store.state.userinfo);
+                if(passuser.length>=JSON.parse(sessionStorage.userInfo).orderCount){
+                    layer("error","该业务员单数达到上限",this);
+                    this.$refs.userOrder.clearSelection();
+                    return
+                }
                 let obj = {
                     salesmanId:row.userId,
                     salesmanName:row.name,
-                    from:this.$store.state.userinfo.userId,
+                    from:JSON.parse(sessionStorage.userInfo).userId,
                     LicenseNo:this.order.LicenseNo,
                     recordId:this.order._id,
                 }
@@ -352,12 +433,13 @@
                     }).then(()=>{
                         // location.reload();
                         // this.dialogVisible
-                        this.tableData[this.index].order = data.res; 
-                        console.log(this.tableData[this.index].order)                
+                        this.tableData[this.index].order = data.res;             
                         this.tableData[this.index].order.salesmanName = data.res.salesmanName;
                         this.dialogVisible = false;                 
                         // this.order = null;
                     }).catch(()=>{
+                        this.tableData[this.index].order = data.res;             
+                        this.tableData[this.index].order.salesmanName = data.res.salesmanName;
                         this.dialogVisible = false;
                     })
                 }else{
@@ -366,13 +448,18 @@
                 }                                    
             },
             async delorder(row,index){
-                if(!row.order){
-                    layer("error","该单未分配",this)
-                    return
+                let check = inputCheck([
+                    [!row.order,"该单未分配"],
+                    [row.order&&row.order.approvalStatus==2,"该单正在审核"],
+                    [row.order&&row.order.approvalStatus==3,"该单已出单"],
+                ],this)
+                if(check == -1){
+                    return;
                 }
                 this.$confirm("是否需要释放订单","提示",{
                     }).then(()=>{ 
-                        delOrder(row.order.orderId,this.$store.state.userinfo.userId).then((data)=>{
+                        debugger
+                        delOrder(row.order.orderId,JSON.parse(sessionStorage.userInfo).userId).then((data)=>{
                             if(data.code==0){
                                 layer("success","回收成功",this);
                                 this.tableData[index].order= null;
@@ -412,7 +499,7 @@
                 }else{
                     return "未分配";
                 }
-            }   
+            },   
         }
     }
 
@@ -434,9 +521,7 @@
             width: 100%;
             .serinput{
                 width: 1.6rem;
-            }
-            
-                
+            }           
             .el-col{
                 text-align: right;
                 margin-bottom: .16rem;
